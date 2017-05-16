@@ -28,6 +28,8 @@ import javax.enterprise.event.Observes;
 
 import org.junit.Test;
 
+import org.microbean.cdi.AbstractBlockingExtension;
+
 import org.microbean.main.Main;
 
 import static org.junit.Assert.assertEquals;
@@ -62,6 +64,7 @@ public class TestWithContainerEnvironment {
 
   private final void onStartup(@Observes @Initialized(ApplicationScoped.class) final Object event) {
     assertNotNull(event);
+    AbstractBlockingExtension.unblockAll();
   }
   
 
