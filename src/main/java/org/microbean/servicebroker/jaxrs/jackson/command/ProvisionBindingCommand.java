@@ -16,7 +16,11 @@
  */
 package org.microbean.servicebroker.jaxrs.jackson.command;
 
+import java.net.URI;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy;
 
@@ -27,6 +31,12 @@ abstract class ProvisionBindingCommand {
   @JsonInclude(content = JsonInclude.Include.NON_NULL, value = JsonInclude.Include.NON_EMPTY)
   @JsonNaming(SnakeCaseStrategy.class)
   static class BindResourceMixin {
+
+    @JsonCreator
+    BindResourceMixin(@JsonProperty("app_guid") final String appGuid,
+                      @JsonProperty("route") final URI route) {
+      super();
+    }
     
   }
   
