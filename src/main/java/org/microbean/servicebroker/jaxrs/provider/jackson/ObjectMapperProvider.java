@@ -29,13 +29,20 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Provider
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
+  private final Logger logger;
+  
   private final ObjectMapper objectMapper;
   
   public ObjectMapperProvider() {
     super();
+    this.logger = LoggerFactory.getLogger(this.getClass());
+    assert this.logger != null;
     final ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
     objectMapper.setMixInResolver(new MixinResolver());
@@ -44,17 +51,28 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
   @Override
   public final ObjectMapper getContext(final Class<?> type) {
+    if (logger.isTraceEnabled()) {
+      logger.trace("ENTRY {}", type);
+      logger.trace("EXIT {}", this.objectMapper);
+    }
     return this.objectMapper;
   }
 
   private static final class MixinResolver implements ClassIntrospector.MixInResolver {
 
+    private final Logger logger;
+    
     private MixinResolver() {
       super();
+      this.logger = LoggerFactory.getLogger(this.getClass());
+      assert this.logger != null;
     }
 
     @Override
     public final Class<?> findMixInClassFor(final Class<?> c) {
+      if (logger.isTraceEnabled()) {
+        logger.trace("ENTRY {}", c);
+      }
       Class<?> returnValue = null;
       if (c != null) {
         String className = c.getName();
@@ -70,6 +88,9 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
           }
         }
         
+      }
+      if (logger.isTraceEnabled()) {
+        logger.trace("EXIT {}", returnValue);
       }
       return returnValue;
     }

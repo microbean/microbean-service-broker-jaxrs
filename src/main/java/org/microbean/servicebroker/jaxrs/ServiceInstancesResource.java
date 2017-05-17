@@ -50,22 +50,32 @@ import org.microbean.servicebroker.api.command.ServiceInstanceAlreadyExistsExcep
 
 import org.microbean.servicebroker.api.query.state.ServiceInstance;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ApplicationScoped
 @Path("/service_instances")
 @Produces(MediaType.APPLICATION_JSON)
 public class ServiceInstancesResource {
 
+  private final Logger logger;
+  
   @Inject
   private ServiceBroker serviceBroker;
   
   public ServiceInstancesResource() {
     super();
+    this.logger = LoggerFactory.getLogger(this.getClass());
+    assert this.logger != null;
   }
 
   @GET
   @Path("{instance_id}")
   public ServiceInstance getServiceInstance(@PathParam("instance_id") final String instanceId)
     throws ServiceBrokerException {
+    if (logger.isTraceEnabled()) {
+      logger.trace("ENTRY {}", instanceId);
+    }
     Objects.requireNonNull(instanceId);
     ServiceInstance returnValue = null;
     try {
@@ -74,6 +84,9 @@ public class ServiceInstancesResource {
       throw new NotFoundException(noSuchServiceInstanceException.getMessage(), noSuchServiceInstanceException);
     } catch (final ServiceBrokerException serviceBrokerException) {
       throw serviceBrokerException;
+    }
+    if (logger.isTraceEnabled()) {
+      logger.trace("EXIT {}", returnValue);
     }
     return returnValue;
   }
@@ -85,6 +98,9 @@ public class ServiceInstancesResource {
                                      final ProvisionServiceInstanceCommand command,
                                      @Context final UriInfo uriInfo)
     throws ServiceBrokerException {
+    if (logger.isTraceEnabled()) {
+      logger.trace("ENTRY {}, {}, {}", instanceId, command, uriInfo);
+    }
     Objects.requireNonNull(instanceId);
     Objects.requireNonNull(command);
     Objects.requireNonNull(uriInfo);
@@ -100,6 +116,9 @@ public class ServiceInstancesResource {
     } catch (final ServiceBrokerException serviceBrokerException) {
       throw serviceBrokerException;
     }
+    if (logger.isTraceEnabled()) {
+      logger.trace("EXIT {}", returnValue);
+    }
     return returnValue;
   }
 
@@ -110,6 +129,9 @@ public class ServiceInstancesResource {
                                         @QueryParam("plan_id") final String planId,
                                         @QueryParam("accepts_incomplete") final boolean acceptsIncomplete)
     throws ServiceBrokerException {
+    if (logger.isTraceEnabled()) {
+      logger.trace("ENTRY {}, {}, {}", instanceId, serviceId, planId, acceptsIncomplete);
+    }
     Objects.requireNonNull(instanceId);
     Objects.requireNonNull(serviceId);
     Objects.requireNonNull(planId);
@@ -123,6 +145,9 @@ public class ServiceInstancesResource {
       returnValue = Response.status(Response.Status.GONE).entity(noSuchServiceInstanceException.getResponse()).build();
     } catch (final ServiceBrokerException serviceBrokerException) {
       throw serviceBrokerException;
+    }
+    if (logger.isTraceEnabled()) {
+      logger.trace("EXIT {}", returnValue);
     }
     return returnValue;
   }

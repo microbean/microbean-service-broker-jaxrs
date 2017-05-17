@@ -32,23 +32,36 @@ import org.microbean.servicebroker.api.ServiceBrokerException;
 
 import org.microbean.servicebroker.api.query.state.Catalog;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ApplicationScoped
 @Path("/catalog")
 @Produces(MediaType.APPLICATION_JSON)
 public class CatalogResource {
 
+  private final Logger logger;
+  
   @Inject
-  private Provider<ServiceBroker> serviceBrokerProvider;
+  private ServiceBroker serviceBroker;
   
   public CatalogResource() {
     super();
+    this.logger = LoggerFactory.getLogger(this.getClass());
+    assert this.logger != null;
   }
 
   @GET
   public Catalog getCatalog() throws ServiceBrokerException {
-    final ServiceBroker serviceBroker = this.serviceBrokerProvider.get();
-    assert serviceBroker != null;
-    return serviceBroker.getCatalog();
+    if (logger.isTraceEnabled()) {
+      logger.trace("ENTRY");
+    }
+    assert this.serviceBroker != null;
+    final Catalog returnValue = this.serviceBroker.getCatalog();
+    if (logger.isTraceEnabled()) {
+      logger.trace("EXIT {}", returnValue);
+    }
+    return returnValue;
   }
   
 }
