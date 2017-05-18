@@ -28,21 +28,9 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 abstract class ProvisionBindingCommand {
 
-  // @JsonInclude(content = JsonInclude.Include.NON_NULL, value = JsonInclude.Include.NON_NULL)
   @JsonNaming(SnakeCaseStrategy.class)
   static class BindResourceMixin {
 
-    @JsonCreator
-    BindResourceMixin() {
-      super();
-    }
-
-    @JsonCreator
-    BindResourceMixin(@JsonProperty("app_guid") final String appGuid,
-                      @JsonProperty("route") final URI route) {
-      super();
-    }
-    
   }
   
   @JsonInclude(content = JsonInclude.Include.NON_NULL, value = JsonInclude.Include.NON_EMPTY)
