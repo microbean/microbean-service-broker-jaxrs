@@ -24,6 +24,8 @@ import javax.enterprise.context.ApplicationScoped;
 
 import javax.ws.rs.ApplicationPath;
 
+import org.microbean.servicebroker.jaxrs.provider.jackson.ObjectMapperProvider;
+
 @ApplicationPath("/v2/")
 @ApplicationScoped
 public class Application extends javax.ws.rs.core.Application {
@@ -35,10 +37,15 @@ public class Application extends javax.ws.rs.core.Application {
   @Override
   public Set<Class<?>> getClasses() {
     final Set<Class<?>> returnValue = new HashSet<>();
+
+    // Root resource classes
     returnValue.add(CatalogResource.class);
     returnValue.add(ServiceInstancesResource.class);
     returnValue.add(ServiceBindingsResource.class);
-    returnValue.add(org.microbean.servicebroker.jaxrs.provider.jackson.ObjectMapperProvider.class);
+
+    // Providers
+    returnValue.add(ObjectMapperProvider.class);
+    
     return Collections.unmodifiableSet(returnValue);
   }
   

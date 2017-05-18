@@ -87,7 +87,6 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
             returnValue = null;
           }
         }
-        
       }
       if (logger.isTraceEnabled()) {
         logger.trace("EXIT {}", returnValue);

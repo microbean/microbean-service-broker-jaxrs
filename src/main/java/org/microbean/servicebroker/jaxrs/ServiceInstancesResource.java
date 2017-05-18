@@ -82,8 +82,6 @@ public class ServiceInstancesResource {
       returnValue = this.serviceBroker.getServiceInstance(instanceId);
     } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
       throw new NotFoundException(noSuchServiceInstanceException.getMessage(), noSuchServiceInstanceException);
-    } catch (final ServiceBrokerException serviceBrokerException) {
-      throw serviceBrokerException;
     }
     if (logger.isTraceEnabled()) {
       logger.trace("EXIT {}", returnValue);
@@ -113,8 +111,6 @@ public class ServiceInstancesResource {
       returnValue = Response.created(uriInfo.getAbsolutePath()).entity(commandResponse).build();
     } catch (final ServiceInstanceAlreadyExistsException serviceInstanceAlreadyExistsException) {
       returnValue = Response.ok(serviceInstanceAlreadyExistsException.getResponse()).build();
-    } catch (final ServiceBrokerException serviceBrokerException) {
-      throw serviceBrokerException;
     }
     if (logger.isTraceEnabled()) {
       logger.trace("EXIT {}", returnValue);
@@ -143,8 +139,6 @@ public class ServiceInstancesResource {
       returnValue = Response.ok(commandResponse).build();
     } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
       returnValue = Response.status(Response.Status.GONE).entity(noSuchServiceInstanceException.getResponse()).build();
-    } catch (final ServiceBrokerException serviceBrokerException) {
-      throw serviceBrokerException;
     }
     if (logger.isTraceEnabled()) {
       logger.trace("EXIT {}", returnValue);

@@ -28,6 +28,7 @@ import javax.inject.Provider;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
@@ -39,9 +40,12 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.microbean.servicebroker.api.ServiceBroker;
 import org.microbean.servicebroker.api.ServiceBrokerException;
+
+import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
 
 import org.microbean.servicebroker.api.command.DeleteBindingCommand;
 import org.microbean.servicebroker.api.command.ProvisionBindingCommand;
@@ -110,8 +114,10 @@ public class ServiceBindingsResource {
     try {
       final ProvisionBindingCommand.Response commandResponse = this.serviceBroker.execute(command);
       returnValue = Response.created(uriInfo.getAbsolutePath()).entity(commandResponse).build();
-    } catch (final ServiceBrokerException serviceBrokerException) {
-      throw serviceBrokerException;
+    } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
+      returnValue = Response.status(Response.Status.BAD_REQUEST)
+        .entity("{\"description\":\"" + noSuchServiceInstanceException.toString() + "\"}")
+        .build();
     }
     if (logger.isTraceEnabled()) {
       logger.trace("EXIT {}", returnValue);
@@ -139,8 +145,10 @@ public class ServiceBindingsResource {
     try {
       final DeleteBindingCommand.Response commandResponse = this.serviceBroker.execute(command);
       returnValue = Response.ok(commandResponse).build();
-    } catch (final ServiceBrokerException serviceBrokerException) {
-      throw serviceBrokerException;
+    } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
+      returnValue = Response.status(Response.Status.GONE)
+        .entity("{\"description\":\"" + noSuchServiceInstanceException.toString() + "\"}")
+        .build();
     }
     if (logger.isTraceEnabled()) {
       logger.trace("EXIT {}", returnValue);
