@@ -19,6 +19,7 @@ package org.microbean.servicebroker.jaxrs.jackson.command;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -29,6 +30,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import org.microbean.servicebroker.api.command.ProvisionBindingCommand.BindResource;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(content = JsonInclude.Include.NON_EMPTY, value = JsonInclude.Include.NON_EMPTY)
 @JsonNaming(SnakeCaseStrategy.class)
 @JsonPropertyOrder({ "service_id", "plan_id", "bind_resource", "parameters" })

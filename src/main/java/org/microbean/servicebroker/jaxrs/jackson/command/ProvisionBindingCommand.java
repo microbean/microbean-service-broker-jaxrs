@@ -19,6 +19,7 @@ package org.microbean.servicebroker.jaxrs.jackson.command;
 import java.net.URI;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -28,6 +29,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 abstract class ProvisionBindingCommand {
 
+  @JsonIgnoreProperties(ignoreUnknown = true)
   @JsonNaming(SnakeCaseStrategy.class)
   static class BindResourceMixin {
 
