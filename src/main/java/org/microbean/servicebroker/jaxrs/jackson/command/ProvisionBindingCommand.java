@@ -33,6 +33,21 @@ abstract class ProvisionBindingCommand {
   static class BindResourceMixin {
 
     @JsonCreator
+    BindResourceMixin() {
+      super();
+    }
+
+    @JsonCreator
+    BindResourceMixin(@JsonProperty("app_guid") final String appGuid) {
+      super();
+    }
+
+    @JsonCreator
+    BindResourceMixin(@JsonProperty("route") final URI route) {
+      super();
+    }
+    
+    @JsonCreator
     BindResourceMixin(@JsonProperty("app_guid") final String appGuid,
                       @JsonProperty("route") final URI route) {
       super();
