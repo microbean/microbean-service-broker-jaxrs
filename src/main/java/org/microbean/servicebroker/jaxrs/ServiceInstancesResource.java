@@ -120,6 +120,7 @@ public class ServiceInstancesResource {
 
   @DELETE
   @Path("{instance_id}")
+  @Consumes(MediaType.WILDCARD)
   public Response deleteServiceInstance(@PathParam("instance_id") final String instanceId,
                                         @QueryParam("service_id") final String serviceId,
                                         @QueryParam("plan_id") final String planId,
@@ -131,7 +132,6 @@ public class ServiceInstancesResource {
     Objects.requireNonNull(instanceId);
     Objects.requireNonNull(serviceId);
     Objects.requireNonNull(planId);
-
     Response returnValue = null;
     final DeleteServiceInstanceCommand command = new DeleteServiceInstanceCommand(instanceId, serviceId, planId, acceptsIncomplete);
     try {
