@@ -111,7 +111,7 @@
       <dependency>
         <groupId>org.jboss.weld</groupId>
         <artifactId>weld-core-bom</artifactId>
-        <version>3.0.0.CR2</version>
+        <version>3.0.0.Final</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -119,7 +119,7 @@
       <dependency>
         <groupId>org.microbean</groupId>
         <artifactId>microbean-configuration-cdi</artifactId>
-        <version>0.1.4</version>
+        <version>0.1.5</version>
         <type>jar</type>
       </dependency>
       
@@ -133,14 +133,14 @@
       <dependency>
         <groupId>org.microbean</groupId>
         <artifactId>microbean-jersey-container-grizzly2-http-cdi-extension</artifactId>
-        <version>0.2.1</version>
+        <version>0.2.3</version>
         <type>jar</type>
       </dependency>
 
       <dependency>
         <groupId>org.microbean</groupId>
         <artifactId>microbean-jersey-container-grizzly2-http-cdi</artifactId>
-        <version>0.2.2</version>
+        <version>0.2.3</version>
         <type>jar</type>
       </dependency>
       
