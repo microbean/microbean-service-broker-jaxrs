@@ -62,7 +62,7 @@ public class ServiceInstancesResource {
   
   @Inject
   private ServiceBroker serviceBroker;
-  
+
   public ServiceInstancesResource() {
     super();
     this.logger = LoggerFactory.getLogger(this.getClass());

@@ -16,11 +16,6 @@
  */
 package org.microbean.servicebroker.jaxrs.provider.jackson;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
-import java.util.TimeZone;
-
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 

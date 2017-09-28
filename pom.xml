@@ -100,6 +100,13 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-validator-cdi</artifactId>
+        <version>5.4.1.Final</version>
+        <type>jar</type>
+      </dependency>
       
       <dependency>
         <groupId>org.jboss</groupId>
@@ -274,6 +281,13 @@
 
     <!-- Runtime-scoped dependencies. -->
 
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator-cdi</artifactId>
+      <type>jar</type>
+      <scope>runtime</scope>
+    </dependency>
+    
     <dependency>
       <groupId>org.jboss</groupId>
       <artifactId>jandex</artifactId>
