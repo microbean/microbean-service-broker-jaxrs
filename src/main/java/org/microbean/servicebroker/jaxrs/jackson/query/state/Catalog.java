@@ -26,10 +26,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy;
 
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-@JsonInclude(content = JsonInclude.Include.NON_EMPTY, value = JsonInclude.Include.NON_EMPTY)
-@JsonNaming(SnakeCaseStrategy.class)
-@JsonPropertyOrder("services")
-public abstract class CatalogMixin {
+public abstract class Catalog {
 
   @JsonInclude(content = JsonInclude.Include.NON_EMPTY, value = JsonInclude.Include.NON_EMPTY)
   @JsonNaming(SnakeCaseStrategy.class)
@@ -39,6 +36,10 @@ public abstract class CatalogMixin {
     @JsonProperty("plan_updateable")
     public abstract boolean isPlanUpdatable();
 
+  }
+
+  public static abstract class Service {
+    
     @JsonInclude(content = JsonInclude.Include.NON_EMPTY, value = JsonInclude.Include.NON_EMPTY)
     @JsonNaming(SnakeCaseStrategy.class)
     @JsonPropertyOrder({ "id", "secret", "redirect_uri" })
