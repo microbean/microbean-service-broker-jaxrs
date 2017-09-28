@@ -50,8 +50,6 @@ import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
 import org.microbean.servicebroker.api.command.DeleteBindingCommand;
 import org.microbean.servicebroker.api.command.ProvisionBindingCommand;
 
-import org.microbean.servicebroker.api.query.state.Binding;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,24 +67,6 @@ public class ServiceBindingsResource {
     super();
     this.logger = LoggerFactory.getLogger(this.getClass());
     assert this.logger != null;
-  }
-
-  @GET
-  @Path("{binding_id}")
-  public Binding getServiceBinding(@PathParam("instance_id") final String instanceId,
-                                   @PathParam("binding_id") final String bindingId,
-                                   @Context final UriInfo uriInfo)
-    throws ServiceBrokerException {
-    if (logger.isTraceEnabled()) {
-      logger.trace("ENTRY {}, {}, {}", instanceId, bindingId, uriInfo);
-    }
-    Objects.requireNonNull(instanceId);
-    Objects.requireNonNull(bindingId);
-    final Binding returnValue = this.serviceBroker.getBinding(instanceId, bindingId);
-    if (logger.isTraceEnabled()) {
-      logger.trace("EXIT {}", returnValue);
-    }
-    return returnValue;
   }
 
   @PUT

@@ -48,8 +48,6 @@ import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
 import org.microbean.servicebroker.api.command.ProvisionServiceInstanceCommand;
 import org.microbean.servicebroker.api.command.ServiceInstanceAlreadyExistsException;
 
-import org.microbean.servicebroker.api.query.state.ServiceInstance;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,26 +65,6 @@ public class ServiceInstancesResource {
     super();
     this.logger = LoggerFactory.getLogger(this.getClass());
     assert this.logger != null;
-  }
-
-  @GET
-  @Path("{instance_id}")
-  public ServiceInstance getServiceInstance(@PathParam("instance_id") final String instanceId)
-    throws ServiceBrokerException {
-    if (logger.isTraceEnabled()) {
-      logger.trace("ENTRY {}", instanceId);
-    }
-    Objects.requireNonNull(instanceId);
-    ServiceInstance returnValue = null;
-    try {
-      returnValue = this.serviceBroker.getServiceInstance(instanceId);
-    } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
-      throw new NotFoundException(noSuchServiceInstanceException.getMessage(), noSuchServiceInstanceException);
-    }
-    if (logger.isTraceEnabled()) {
-      logger.trace("EXIT {}", returnValue);
-    }
-    return returnValue;
   }
 
   @PUT
