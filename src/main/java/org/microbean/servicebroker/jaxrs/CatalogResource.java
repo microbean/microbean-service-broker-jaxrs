@@ -57,7 +57,10 @@ public class CatalogResource {
       logger.trace("ENTRY");
     }
     assert this.serviceBroker != null;
-    final Catalog returnValue = this.serviceBroker.getCatalog();
+    Catalog returnValue = this.serviceBroker.getCatalog();
+    if (returnValue == null) {
+      returnValue = new Catalog();
+    }
     if (logger.isTraceEnabled()) {
       logger.trace("EXIT {}", returnValue);
     }

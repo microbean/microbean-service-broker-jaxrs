@@ -83,12 +83,22 @@ public class ServiceInstancesResource {
     if (command.getInstanceId() == null) {
       command.setInstanceId(instanceId);
     }
-    Response returnValue = null;
+    final Response returnValue;
+    Response temp = null;
     try {
       final ProvisionServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
-      returnValue = Response.created(uriInfo.getAbsolutePath()).entity(commandResponse).build();
+      if (commandResponse == null) {
+        temp = Response.serverError().entity("{}").build();
+      } else {
+        // The specification mandates a 201 return code, but does not
+        // say what the Location: header should contain, so we don't
+        // return one.
+        temp = Response.status(201).entity(commandResponse).build();
+      }
     } catch (final ServiceInstanceAlreadyExistsException serviceInstanceAlreadyExistsException) {
-      returnValue = Response.ok(serviceInstanceAlreadyExistsException.getResponse()).build();
+      temp = Response.status(200).entity(serviceInstanceAlreadyExistsException.getResponse()).build();
+    } finally {
+      returnValue = temp;
     }
     if (logger.isTraceEnabled()) {
       logger.trace("EXIT {}", returnValue);
@@ -110,13 +120,20 @@ public class ServiceInstancesResource {
     Objects.requireNonNull(instanceId);
     Objects.requireNonNull(serviceId);
     Objects.requireNonNull(planId);
-    Response returnValue = null;
     final DeleteServiceInstanceCommand command = new DeleteServiceInstanceCommand(instanceId, serviceId, planId, acceptsIncomplete);
+    final Response returnValue;
+    Response temp = null;
     try {
       final DeleteServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
-      returnValue = Response.ok(commandResponse).build();
+      if (commandResponse == null) {
+        temp = Response.serverError().entity("{}").build();
+      } else {
+        temp = Response.ok(commandResponse).build();
+      }
     } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
-      returnValue = Response.status(Response.Status.GONE).entity(noSuchServiceInstanceException.getResponse()).build();
+      temp = Response.status(Response.Status.GONE).entity(noSuchServiceInstanceException.getResponse()).build();
+    } finally {
+      returnValue = temp;
     }
     if (logger.isTraceEnabled()) {
       logger.trace("EXIT {}", returnValue);

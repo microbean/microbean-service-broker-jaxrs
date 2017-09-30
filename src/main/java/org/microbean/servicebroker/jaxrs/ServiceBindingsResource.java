@@ -74,30 +74,35 @@ public class ServiceBindingsResource {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response putServiceBinding(@PathParam("instance_id") final String instanceId,
                                     @PathParam("binding_id") final String bindingId,
-                                    final ProvisionBindingCommand command,
-                                    @Context final UriInfo uriInfo)
+                                    final ProvisionBindingCommand command)
     throws ServiceBrokerException {
     if (logger.isTraceEnabled()) {
-      logger.trace("ENTRY {}, {}, {}, {}", instanceId, bindingId, command, uriInfo);
+      logger.trace("ENTRY {}, {}, {}", instanceId, bindingId, command);
     }
     Objects.requireNonNull(instanceId);
     Objects.requireNonNull(bindingId);
     Objects.requireNonNull(command);
-    Objects.requireNonNull(uriInfo);
     if (command.getServiceInstanceId() == null) {
       command.setServiceInstanceId(instanceId);
     }
     if (command.getBindingInstanceId() == null) {
       command.setBindingInstanceId(bindingId);
     }
-    Response returnValue = null;
+    final Response returnValue;
+    Response temp = null;
     try {
       final ProvisionBindingCommand.Response commandResponse = this.serviceBroker.execute(command);
-      returnValue = Response.created(uriInfo.getAbsolutePath()).entity(commandResponse).build();
+      if (commandResponse == null) {
+        temp = Response.serverError().entity("{}").build();
+      } else {
+        temp = Response.status(201).entity(commandResponse).build();
+      }
     } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
-      returnValue = Response.status(Response.Status.BAD_REQUEST)
+      temp = Response.status(Response.Status.BAD_REQUEST)
         .entity("{\"description\":\"" + noSuchServiceInstanceException.toString() + "\"}")
         .build();
+    } finally {
+      returnValue = temp;
     }
     if (logger.isTraceEnabled()) {
       logger.trace("EXIT {}", returnValue);
@@ -120,15 +125,22 @@ public class ServiceBindingsResource {
     Objects.requireNonNull(serviceId);
     Objects.requireNonNull(planId);
 
-    Response returnValue = null;
     final DeleteBindingCommand command = new DeleteBindingCommand(instanceId, bindingId, serviceId, planId);
+    final Response returnValue;
+    Response temp = null;
     try {
       final DeleteBindingCommand.Response commandResponse = this.serviceBroker.execute(command);
-      returnValue = Response.ok(commandResponse).build();
+      if (commandResponse == null) {
+        temp = Response.serverError().entity("{}").build();
+      } else {
+        temp = Response.ok(commandResponse).build();
+      }
     } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
-      returnValue = Response.status(Response.Status.GONE)
+      temp = Response.status(Response.Status.GONE)
         .entity("{\"description\":\"" + noSuchServiceInstanceException.toString() + "\"}")
         .build();
+    } finally {
+      returnValue = temp;
     }
     if (logger.isTraceEnabled()) {
       logger.trace("EXIT {}", returnValue);
