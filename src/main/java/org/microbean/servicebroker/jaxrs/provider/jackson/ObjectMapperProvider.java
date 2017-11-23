@@ -16,6 +16,9 @@
  */
 package org.microbean.servicebroker.jaxrs.provider.jackson;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
@@ -24,20 +27,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Provider
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
-  private final Logger logger;
-  
   private final ObjectMapper objectMapper;
   
   public ObjectMapperProvider() {
     super();
-    this.logger = LoggerFactory.getLogger(this.getClass());
-    assert this.logger != null;
     final ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
     objectMapper.setMixInResolver(new MixinResolver());
@@ -46,27 +42,31 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
   @Override
   public final ObjectMapper getContext(final Class<?> type) {
-    if (logger.isTraceEnabled()) {
-      logger.trace("ENTRY {}", type);
-      logger.trace("EXIT {}", this.objectMapper);
+    final String cn = this.getClass().getName();
+    final String mn = "getContext";
+    final Logger logger = Logger.getLogger(cn);
+    assert logger != null;
+    if (logger.isLoggable(Level.FINER)) {
+      logger.entering(cn, mn, type);
+      logger.exiting(cn, mn, this.objectMapper);
     }
     return this.objectMapper;
   }
 
   private static final class MixinResolver implements ClassIntrospector.MixInResolver {
-
-    private final Logger logger;
     
     private MixinResolver() {
       super();
-      this.logger = LoggerFactory.getLogger(this.getClass());
-      assert this.logger != null;
     }
 
     @Override
     public final Class<?> findMixInClassFor(final Class<?> c) {
-      if (logger.isTraceEnabled()) {
-        logger.trace("ENTRY {}", c);
+      final String cn = this.getClass().getName();
+      final String mn = "findMixInClassFor";
+      final Logger logger = Logger.getLogger(cn);
+      assert logger != null;
+      if (logger.isLoggable(Level.FINER)) {
+        logger.entering(cn, mn, c);
       }
       Class<?> returnValue = null;
       if (c != null) {
@@ -83,8 +83,8 @@ public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
           }
         }
       }
-      if (logger.isTraceEnabled()) {
-        logger.trace("EXIT {}", returnValue);
+      if (logger.isLoggable(Level.FINER)) {
+        logger.exiting(cn, mn, returnValue);
       }
       return returnValue;
     }

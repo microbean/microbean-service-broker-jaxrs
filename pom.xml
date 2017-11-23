@@ -18,37 +18,16 @@
   <name>MicroBean Service Broker JAX-RS</name>
   <description>${project.name}</description>
   <inceptionYear>2017</inceptionYear>
-  <url>https://ljnelson.github.io/${project.artifactId}</url>
+  <url>https://microbean.github.io/${project.artifactId}</url>
 
   <scm>
-    <connection>scm:git:git@github.com:ljnelson/${project.artifactId}.git</connection>
-    <developerConnection>scm:git:git@github.com:ljnelson/${project.artifactId}.git</developerConnection>
-    <url>https://github.com/ljnelson/${project.artifactId}/</url>
+    <connection>scm:git:git@github.com:microbean/${project.artifactId}.git</connection>
+    <developerConnection>scm:git:git@github.com:microbean/${project.artifactId}.git</developerConnection>
+    <url>https://github.com/microbean/${project.artifactId}/</url>
   </scm>
 
   <dependencyManagement>
     <dependencies>
-
-      <dependency>
-        <groupId>javax.annotation</groupId>
-        <artifactId>javax.annotation-api</artifactId>
-        <version>1.3</version>
-        <type>jar</type>
-      </dependency>
-      
-      <dependency>
-        <groupId>javax.el</groupId>
-        <artifactId>javax.el-api</artifactId>
-        <version>3.0.1-b04</version>
-        <type>jar</type>
-      </dependency>
-      
-      <dependency>
-        <groupId>javax.enterprise</groupId>
-        <artifactId>cdi-api</artifactId>
-        <version>2.0</version>
-        <type>jar</type>
-      </dependency>
 
       <dependency>
         <groupId>javax.inject</groupId>
@@ -57,13 +36,6 @@
         <type>jar</type>
       </dependency>
       
-      <dependency>
-        <groupId>javax.interceptor</groupId>
-        <artifactId>javax.interceptor-api</artifactId>
-        <version>1.2</version>
-        <type>jar</type>
-      </dependency>
-
       <dependency>
         <groupId>javax.validation</groupId>
         <artifactId>validation-api</artifactId>
@@ -87,160 +59,18 @@
       </dependency>
       
       <dependency>
-        <groupId>org.glassfish</groupId>
-        <artifactId>javax.el</artifactId>
-        <version>3.0.1-b08</version>
-        <type>jar</type>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.glassfish.jersey</groupId>
-        <artifactId>jersey-bom</artifactId>
-        <version>2.25.1</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-validator-cdi</artifactId>
-        <version>5.4.1.Final</version>
-        <type>jar</type>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.jboss</groupId>
-        <artifactId>jandex</artifactId>
-        <version>2.0.3.Final</version>
-        <type>jar</type>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.weld</groupId>
-        <artifactId>weld-core-bom</artifactId>
-        <version>3.0.0.Final</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.microbean</groupId>
-        <artifactId>microbean-configuration-cdi</artifactId>
-        <version>0.1.5</version>
-        <type>jar</type>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.microbean</groupId>
-        <artifactId>microbean-configuration</artifactId>
-        <version>0.1.1</version>
-        <type>jar</type>
-      </dependency>
-
-      <dependency>
-        <groupId>org.microbean</groupId>
-        <artifactId>microbean-jersey-container-grizzly2-http-cdi-extension</artifactId>
-        <version>0.2.3</version>
-        <type>jar</type>
-      </dependency>
-
-      <dependency>
-        <groupId>org.microbean</groupId>
-        <artifactId>microbean-jersey-container-grizzly2-http-cdi</artifactId>
-        <version>0.2.3</version>
-        <type>jar</type>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.microbean</groupId>
-        <artifactId>microbean-main</artifactId>
-        <version>6</version>
-        <type>jar</type>
-      </dependency>
-
-      <dependency>
         <groupId>org.microbean</groupId>
         <artifactId>microbean-service-broker-api</artifactId>
         <version>2.13.0-SNAPSHOT</version>
         <type>jar</type>
       </dependency>
 
-      <dependency>
-        <groupId>org.microbean</groupId>
-        <artifactId>microbean-service-broker-helm</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
-        <type>jar</type>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.25</version>
-        <type>jar</type>
-      </dependency>
-      
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>1.7.25</version>
-        <type>jar</type>
-      </dependency>
-      
     </dependencies>
   </dependencyManagement>
 
   <dependencies>
 
     <!-- Compile-scoped dependencies. -->
-
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>javax.el</groupId>
-      <artifactId>javax.el-api</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>javax.enterprise</groupId>
-      <artifactId>cdi-api</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.interceptor</groupId>
-      <artifactId>javax.interceptor-api</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>validation-api</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>javax.ws.rs-api</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -258,144 +88,38 @@
         
     <dependency>
       <groupId>org.microbean</groupId>
-      <artifactId>microbean-configuration-cdi</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.microbean</groupId>
       <artifactId>microbean-service-broker-api</artifactId>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    
     <!-- Provided-scoped dependencies. -->
 
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    
     <!-- Runtime-scoped dependencies. -->
 
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-validator-cdi</artifactId>
-      <type>jar</type>
-      <scope>runtime</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss</groupId>
-      <artifactId>jandex</artifactId>
-      <type>jar</type>
-      <scope>runtime</scope>
-      <optional>true</optional>
-    </dependency>
-    
     <!-- Test-scoped dependencies. -->
 
-    <dependency>
-      <groupId>org.glassfish.jersey.media</groupId>
-      <artifactId>jersey-media-json-jackson</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.glassfish.hk2.external</groupId>
-          <artifactId>javax.inject</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.glassfish.jersey.ext.cdi</groupId>
-      <artifactId>jersey-weld2-se</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.glassfish.hk2.external</groupId>
-          <artifactId>javax.inject</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.weld.se</groupId>
-      <artifactId>weld-se-core</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss.spec.javax.el</groupId>
-          <artifactId>jboss-el-api_3.0_spec</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.spec.javax.interceptor</groupId>
-          <artifactId>jboss-interceptors-api_1.2_spec</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.microbean</groupId>
-      <artifactId>microbean-configuration</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.microbean</groupId>
-      <artifactId>microbean-jersey-container-grizzly2-http-cdi-extension</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.glassfish.hk2.external</groupId>
-          <artifactId>javax.inject</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.microbean</groupId>
-      <artifactId>microbean-jersey-container-grizzly2-http-cdi</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.microbean</groupId>
-      <artifactId>microbean-main</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.microbean</groupId>
-      <artifactId>microbean-service-broker-helm</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.glassfish</groupId>
-      <artifactId>javax.el</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -466,9 +190,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
-            <org.jboss.logging.provider>${org.jboss.logging.provider}</org.jboss.logging.provider>
-            <org.slf4j.simpleLogger.log.org.jboss.weld>${org.slf4j.simpleLogger.log.org.jboss.weld}</org.slf4j.simpleLogger.log.org.jboss.weld>
-            <org.slf4j.simpleLogger.log.org.microbean.jersey.container.grizzly2.http.cdi>${org.slf4j.simpleLogger.log.org.microbean}</org.slf4j.simpleLogger.log.org.microbean.jersey.container.grizzly2.http.cdi>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -492,11 +213,6 @@
 
     <!-- maven-surefire-plugin properties; see http://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html -->
     <trimStackTrace>false</trimStackTrace>
-    
-    <!-- Weld logging; see https://docs.jboss.org/weld/reference/latest/en-US/html/logging.html#_weld_se -->
-    <org.jboss.logging.provider>slf4j</org.jboss.logging.provider>
-    <org.slf4j.simpleLogger.log.org.jboss.weld>info</org.slf4j.simpleLogger.log.org.jboss.weld>
-    <org.slf4j.simpleLogger.log.org.microbean.jersey.container.grizzly2.http.cdi>info</org.slf4j.simpleLogger.log.org.microbean.jersey.container.grizzly2.http.cdi>
     
   </properties>
   

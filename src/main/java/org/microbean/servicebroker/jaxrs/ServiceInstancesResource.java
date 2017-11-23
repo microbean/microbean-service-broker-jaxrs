@@ -16,20 +16,18 @@
  */
 package org.microbean.servicebroker.jaxrs;
 
-import java.net.URI;
-
 import java.util.Objects;
 
-import javax.enterprise.context.ApplicationScoped;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
+import javax.inject.Singleton;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -48,23 +46,16 @@ import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
 import org.microbean.servicebroker.api.command.ProvisionServiceInstanceCommand;
 import org.microbean.servicebroker.api.command.ServiceInstanceAlreadyExistsException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-@ApplicationScoped
 @Path("/service_instances")
 @Produces(MediaType.APPLICATION_JSON)
+@Singleton
 public class ServiceInstancesResource {
 
-  private final Logger logger;
-  
   @Inject
   private ServiceBroker serviceBroker;
 
   public ServiceInstancesResource() {
     super();
-    this.logger = LoggerFactory.getLogger(this.getClass());
-    assert this.logger != null;
   }
 
   @PUT
@@ -74,12 +65,17 @@ public class ServiceInstancesResource {
                                      final ProvisionServiceInstanceCommand command,
                                      @Context final UriInfo uriInfo)
     throws ServiceBrokerException {
-    if (logger.isTraceEnabled()) {
-      logger.trace("ENTRY {}, {}, {}", instanceId, command, uriInfo);
+    final String cn = this.getClass().getName();
+    final String mn = "putServiceInstance";
+    final Logger logger = Logger.getLogger(cn);
+    assert logger != null;
+    if (logger.isLoggable(Level.FINER)) {
+      logger.entering(cn, mn, new Object[] { instanceId, command, uriInfo });
     }
     Objects.requireNonNull(instanceId);
     Objects.requireNonNull(command);
     Objects.requireNonNull(uriInfo);
+    
     if (command.getInstanceId() == null) {
       command.setInstanceId(instanceId);
     }
@@ -100,8 +96,9 @@ public class ServiceInstancesResource {
     } finally {
       returnValue = temp;
     }
-    if (logger.isTraceEnabled()) {
-      logger.trace("EXIT {}", returnValue);
+
+    if (logger.isLoggable(Level.FINER)) {
+      logger.exiting(cn, mn, returnValue);
     }
     return returnValue;
   }
@@ -114,12 +111,17 @@ public class ServiceInstancesResource {
                                         @QueryParam("plan_id") final String planId,
                                         @QueryParam("accepts_incomplete") final boolean acceptsIncomplete)
     throws ServiceBrokerException {
-    if (logger.isTraceEnabled()) {
-      logger.trace("ENTRY {}, {}, {}", instanceId, serviceId, planId, acceptsIncomplete);
+    final String cn = this.getClass().getName();
+    final String mn = "deleteServiceInstance";
+    final Logger logger = Logger.getLogger(cn);
+    assert logger != null;
+    if (logger.isLoggable(Level.FINER)) {
+      logger.entering(cn, mn, new Object[] { instanceId, serviceId, planId, acceptsIncomplete });
     }
     Objects.requireNonNull(instanceId);
     Objects.requireNonNull(serviceId);
     Objects.requireNonNull(planId);
+
     final DeleteServiceInstanceCommand command = new DeleteServiceInstanceCommand(instanceId, serviceId, planId, acceptsIncomplete);
     final Response returnValue;
     Response temp = null;
@@ -135,8 +137,9 @@ public class ServiceInstancesResource {
     } finally {
       returnValue = temp;
     }
-    if (logger.isTraceEnabled()) {
-      logger.trace("EXIT {}", returnValue);
+
+    if (logger.isLoggable(Level.FINER)) {
+      logger.exiting(cn, mn, returnValue);
     }
     return returnValue;
   }

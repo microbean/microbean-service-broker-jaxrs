@@ -18,35 +18,65 @@ package org.microbean.servicebroker.jaxrs;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.inject.Singleton;
 
 import javax.ws.rs.ApplicationPath;
 
 import org.microbean.servicebroker.jaxrs.provider.jackson.ObjectMapperProvider;
 
 @ApplicationPath("/v2/")
-@ApplicationScoped
+@Singleton
 public class Application extends javax.ws.rs.core.Application {
 
+  private final Set<Class<?>> classes;
+  
   public Application() {
     super();
+    final Set<Class<?>> classes = this.createClasses();
+    if (classes == null || classes.isEmpty()) {
+      this.classes = Collections.emptySet();
+    } else {
+      this.classes = Collections.unmodifiableSet(new LinkedHashSet<>(classes));
+    }
   }
 
-  @Override
-  public Set<Class<?>> getClasses() {
-    final Set<Class<?>> returnValue = new HashSet<>();
+  protected Set<Class<?>> createClasses() {
+    final String cn = this.getClass().getName();
+    final String mn = "createClasses";
+    final Logger logger = Logger.getLogger(cn);
+    assert logger != null;
+    if (logger.isLoggable(Level.FINER)) {
+      logger.entering(cn, mn);
+    }
+
+    final Set<Class<?>> classes = new HashSet<>();
 
     // Root resource classes
-    returnValue.add(CatalogResource.class);
-    returnValue.add(ServiceInstancesResource.class);
-    returnValue.add(ServiceBindingsResource.class);
+    classes.add(CatalogResource.class);
+    classes.add(ServiceInstancesResource.class);
+    classes.add(ServiceBindingsResource.class);
 
     // Providers
-    returnValue.add(ObjectMapperProvider.class);
+    // TODO: remove this
+    classes.add(ObjectMapperProvider.class);
     
-    return Collections.unmodifiableSet(returnValue);
+    final Set<Class<?>> returnValue = Collections.unmodifiableSet(classes);
+
+    if (logger.isLoggable(Level.FINER)) {
+      logger.exiting(cn, mn, returnValue);
+    }
+    return returnValue;
+  }
+  
+  @Override
+  public Set<Class<?>> getClasses() {
+    return this.classes;
   }
   
 }

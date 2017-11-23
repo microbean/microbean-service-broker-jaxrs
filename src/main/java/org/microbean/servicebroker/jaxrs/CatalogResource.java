@@ -16,10 +16,12 @@
  */
 package org.microbean.servicebroker.jaxrs;
 
-import javax.enterprise.context.ApplicationScoped;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -32,37 +34,36 @@ import org.microbean.servicebroker.api.ServiceBrokerException;
 
 import org.microbean.servicebroker.api.query.state.Catalog;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-@ApplicationScoped
 @Path("/catalog")
 @Produces(MediaType.APPLICATION_JSON)
+@Singleton
 public class CatalogResource {
 
-  private final Logger logger;
-  
   @Inject
   private ServiceBroker serviceBroker;
   
   public CatalogResource() {
     super();
-    this.logger = LoggerFactory.getLogger(this.getClass());
-    assert this.logger != null;
   }
 
   @GET
   public Catalog getCatalog() throws ServiceBrokerException {
-    if (logger.isTraceEnabled()) {
-      logger.trace("ENTRY");
+    final String cn = this.getClass().getName();
+    final String mn = "getCatalog";
+    final Logger logger = Logger.getLogger(cn);
+    assert logger != null;
+    if (logger.isLoggable(Level.FINER)) {
+      logger.entering(cn, mn);
     }
+    
     assert this.serviceBroker != null;
     Catalog returnValue = this.serviceBroker.getCatalog();
     if (returnValue == null) {
       returnValue = new Catalog();
     }
-    if (logger.isTraceEnabled()) {
-      logger.trace("EXIT {}", returnValue);
+
+    if (logger.isLoggable(Level.FINER)) {
+      logger.exiting(cn, mn, returnValue);
     }
     return returnValue;
   }

@@ -20,27 +20,24 @@ import java.net.URI;
 
 import java.util.Objects;
 
-import javax.enterprise.context.ApplicationScoped;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
+import javax.inject.Singleton;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.Produces;
 
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.microbean.servicebroker.api.ServiceBroker;
 import org.microbean.servicebroker.api.ServiceBrokerException;
@@ -50,23 +47,16 @@ import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
 import org.microbean.servicebroker.api.command.DeleteBindingCommand;
 import org.microbean.servicebroker.api.command.ProvisionBindingCommand;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-@ApplicationScoped
 @Path("/service_instances/{instance_id}/service_bindings")
 @Produces(MediaType.APPLICATION_JSON)
+@Singleton
 public class ServiceBindingsResource {
 
-  private final Logger logger;
-  
   @Inject
   private ServiceBroker serviceBroker;
   
   public ServiceBindingsResource() {
     super();
-    this.logger = LoggerFactory.getLogger(this.getClass());
-    assert this.logger != null;
   }
 
   @PUT
@@ -76,18 +66,25 @@ public class ServiceBindingsResource {
                                     @PathParam("binding_id") final String bindingId,
                                     final ProvisionBindingCommand command)
     throws ServiceBrokerException {
-    if (logger.isTraceEnabled()) {
-      logger.trace("ENTRY {}, {}, {}", instanceId, bindingId, command);
+    final String cn = this.getClass().getName();
+    final String mn = "putServiceBinding";
+    final Logger logger = Logger.getLogger(cn);
+    assert logger != null;
+    if (logger.isLoggable(Level.FINER)) {
+      logger.entering(cn, mn, new Object[] { instanceId, bindingId, command });
     }
+
     Objects.requireNonNull(instanceId);
     Objects.requireNonNull(bindingId);
     Objects.requireNonNull(command);
-    if (command.getServiceInstanceId() == null) {
-      command.setServiceInstanceId(instanceId);
+    
+    if (command.getInstanceId() == null) {
+      command.setInstanceId(instanceId);
     }
-    if (command.getBindingInstanceId() == null) {
-      command.setBindingInstanceId(bindingId);
+    if (command.getBindingId() == null) {
+      command.setBindingId(bindingId);
     }
+
     final Response returnValue;
     Response temp = null;
     try {
@@ -104,8 +101,9 @@ public class ServiceBindingsResource {
     } finally {
       returnValue = temp;
     }
-    if (logger.isTraceEnabled()) {
-      logger.trace("EXIT {}", returnValue);
+
+    if (logger.isLoggable(Level.FINER)) {
+      logger.exiting(cn, mn, returnValue);
     }
     return returnValue;
   }
@@ -117,9 +115,14 @@ public class ServiceBindingsResource {
                                        @QueryParam("service_id") final String serviceId,
                                        @QueryParam("plan_id") final String planId)
     throws ServiceBrokerException {
-    if (logger.isTraceEnabled()) {
-      logger.trace("ENTRY {}, {}, {}, {}", instanceId, bindingId, serviceId, planId);
+    final String cn = this.getClass().getName();
+    final String mn = "deleteServiceBinding";
+    final Logger logger = Logger.getLogger(cn);
+    assert logger != null;
+    if (logger.isLoggable(Level.FINER)) {
+      logger.entering(cn, mn, new Object[] { instanceId, bindingId, serviceId, planId });
     }
+
     Objects.requireNonNull(instanceId);
     Objects.requireNonNull(bindingId);
     Objects.requireNonNull(serviceId);
@@ -142,8 +145,9 @@ public class ServiceBindingsResource {
     } finally {
       returnValue = temp;
     }
-    if (logger.isTraceEnabled()) {
-      logger.trace("EXIT {}", returnValue);
+
+    if (logger.isLoggable(Level.FINER)) {
+      logger.exiting(cn, mn, returnValue);
     }
     return returnValue;
   }
