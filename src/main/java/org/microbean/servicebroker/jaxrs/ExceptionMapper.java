@@ -16,6 +16,11 @@
  */
 package org.microbean.servicebroker.jaxrs;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.ws.rs.WebApplicationException;
+
 import javax.ws.rs.core.Response;
 
 import javax.ws.rs.ext.Provider;
@@ -25,13 +30,44 @@ public final class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Ex
 
   public ExceptionMapper() {
     super();
+    final String cn = this.getClass().getName();
+    final Logger logger = Logger.getLogger(cn);
+    assert logger != null;
+    final String mn = "<init>";
+    if (logger.isLoggable(Level.FINER)) {
+      logger.entering(cn, mn);
+      logger.exiting(cn, mn);
+    }
   }
   
   @Override
   public final Response toResponse(final Exception exception) {
-    return Response.serverError()
-      .entity("{\"description\": \"" + exception.toString() + "\"}")
-      .build();
+    final String cn = this.getClass().getName();
+    final Logger logger = Logger.getLogger(cn);
+    assert logger != null;
+    final String mn = "<init>";
+    if (logger.isLoggable(Level.FINER)) {
+      logger.entering(cn, mn, exception);
+    }
+    if (logger.isLoggable(Level.SEVERE)) {
+      String message = exception.getMessage();
+      if (message == null) {
+        message = exception.toString();
+      }
+      logger.logp(Level.SEVERE, cn, mn, message, exception);
+    }
+    final Response returnValue;
+    if (exception instanceof WebApplicationException) {
+      returnValue = ((WebApplicationException)exception).getResponse();
+    } else {
+      returnValue = Response.serverError()
+        .entity("{\"description\": \"" + exception.toString() + "\"}")
+        .build();
+    }
+    if (logger.isLoggable(Level.FINER)) {
+      logger.exiting(cn, mn, returnValue);
+    }
+    return returnValue;
   }
   
 }
