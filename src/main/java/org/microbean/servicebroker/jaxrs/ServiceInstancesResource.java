@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -40,6 +41,9 @@ import javax.ws.rs.core.Response;
 
 import org.microbean.servicebroker.api.ServiceBroker;
 import org.microbean.servicebroker.api.ServiceBrokerException;
+
+import org.microbean.servicebroker.api.query.LastOperationQuery;
+import org.microbean.servicebroker.api.query.state.LastOperation;
 
 import org.microbean.servicebroker.api.command.DeleteServiceInstanceCommand;
 import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
@@ -58,6 +62,53 @@ public class ServiceInstancesResource {
     super();
   }
 
+  @GET
+  @Path("{instance_id}/last_operation")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response getLastOperation(@PathParam("instance_id") final String instanceId,
+                                   @QueryParam("service_id") final String serviceId,
+                                   @QueryParam("plan_id") final String planId,
+                                   @QueryParam("operation") final String operationId)
+    throws ServiceBrokerException {
+    final String cn = this.getClass().getName();
+    final String mn = "getLastOperation";
+    final Logger logger = Logger.getLogger(cn);
+    assert logger != null;
+    if (logger.isLoggable(Level.FINER)) {
+      logger.entering(cn, mn, new Object[] { instanceId, serviceId, planId, operationId });
+    }
+    Objects.requireNonNull(instanceId);
+
+    // The specification implies but does not state that operation is required.
+    // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#parameters
+    if (operationId == null) {
+      throw new BadRequestException("The operation query parameter was not specified");
+    }
+    
+    final Response returnValue;
+    Response temp = null;
+    final LastOperationQuery query = new LastOperationQuery(serviceId, instanceId, planId, operationId);
+    try {
+      final LastOperation lastOperation = this.serviceBroker.getLastOperation(query);
+      if (lastOperation == null) {
+        temp = Response.serverError().entity("{}").build();
+      } else {
+        temp = Response.ok().entity(lastOperation).build();
+      }
+    } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
+      // See
+      // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-1
+      temp = Response.status(410).entity("{}").build();
+    } finally {
+      returnValue = temp;
+    }    
+    
+    if (logger.isLoggable(Level.FINER)) {
+      logger.exiting(cn, mn, returnValue);
+    }
+    return returnValue;
+  }
+  
   @PUT
   @Path("{instance_id}")
   @Consumes(MediaType.APPLICATION_JSON)
