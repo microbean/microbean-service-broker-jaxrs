@@ -49,11 +49,11 @@ public final class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Ex
     if (logger.isLoggable(Level.FINER)) {
       logger.entering(cn, mn, exception);
     }
+    String message = exception.getMessage();
+    if (message == null) {
+      message = exception.toString();
+    }
     if (logger.isLoggable(Level.SEVERE)) {
-      String message = exception.getMessage();
-      if (message == null) {
-        message = exception.toString();
-      }
       logger.logp(Level.SEVERE, cn, mn, message, exception);
     }
     final Response returnValue;
@@ -61,7 +61,7 @@ public final class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Ex
       returnValue = ((WebApplicationException)exception).getResponse();
     } else {
       returnValue = Response.serverError()
-        .entity("{\"description\": \"" + exception.toString() + "\"}")
+        .entity("{\"description\": \"" + message + "\"}")
         .build();
     }
     if (logger.isLoggable(Level.FINER)) {
