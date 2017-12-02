@@ -43,11 +43,12 @@ import org.microbean.servicebroker.api.ServiceBroker;
 import org.microbean.servicebroker.api.ServiceBrokerException;
 
 import org.microbean.servicebroker.api.command.AbstractResponse;
-import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
-import org.microbean.servicebroker.api.command.DeleteBindingCommand;
-import org.microbean.servicebroker.api.command.ProvisionBindingCommand;
-import org.microbean.servicebroker.api.command.IdenticalBindingAlreadyExistsException;
 import org.microbean.servicebroker.api.command.BindingAlreadyExistsException;
+import org.microbean.servicebroker.api.command.DeleteBindingCommand;
+import org.microbean.servicebroker.api.command.IdenticalBindingAlreadyExistsException;
+import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
+import org.microbean.servicebroker.api.command.ProvisionBindingCommand;
+import org.microbean.servicebroker.api.command.UnbindablePlanException;
 
 @Path("/service_instances/{instance_id}/service_bindings")
 @Produces(MediaType.APPLICATION_JSON)
@@ -107,6 +108,11 @@ public class ServiceBindingsResource {
         temp = Response.status(Response.Status.BAD_REQUEST)
           .entity("{\"description\":\"" + noSuchServiceInstanceException.toString() + "\"}")
           .build();
+      } catch (final UnbindablePlanException unbindablePlanException) {
+        // The specification is ambiguous as to whether a 404 or a 400
+        // is called for.  See
+        // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#binding.
+        temp = Response.status(404).entity("{}").build();
       } catch (final IdenticalBindingAlreadyExistsException identicalBindingAlreadyExistsException) {
         // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
         final AbstractResponse abstractResponse = identicalBindingAlreadyExistsException.getResponse();
