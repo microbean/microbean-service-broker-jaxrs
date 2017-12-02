@@ -16,6 +16,11 @@
  */
 package org.microbean.servicebroker.jaxrs;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import java.util.Objects;
 
 import java.util.logging.Level;
@@ -288,6 +293,8 @@ public class ServiceInstancesResource {
     return returnValue;
   }
 
+  @Target({ ElementType.METHOD })
+  @Retention(RetentionPolicy.RUNTIME)
   @javax.ws.rs.HttpMethod("PATCH")
   private @interface PATCH {
 
