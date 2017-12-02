@@ -47,6 +47,7 @@ import org.microbean.servicebroker.api.query.LastOperationQuery;
 import org.microbean.servicebroker.api.query.state.LastOperation;
 
 import org.microbean.servicebroker.api.command.DeleteServiceInstanceCommand;
+import org.microbean.servicebroker.api.command.IdenticalServiceInstanceAlreadyExistsException;
 import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
 import org.microbean.servicebroker.api.command.ProvisionServiceInstanceCommand;
 import org.microbean.servicebroker.api.command.ServiceInstanceAlreadyExistsException;
@@ -159,10 +160,12 @@ public class ServiceInstancesResource {
           // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
           temp = Response.status(202).entity(commandResponse).build();
         }
+      } catch (final IdenticalServiceInstanceAlreadyExistsException identicalServiceInstanceAlreadyExistsException) {
+        // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
+        temp = Response.status(409).entity(identicalServiceInstanceAlreadyExistsException.getResponse()).build();
       } catch (final ServiceInstanceAlreadyExistsException serviceInstanceAlreadyExistsException) {
         // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
         temp = Response.status(200).entity(serviceInstanceAlreadyExistsException.getResponse()).build();
-        // TODO: add IdenticalServiceInstanceAlreadyExistsException
       } finally {
         returnValue = temp;
       }
@@ -225,7 +228,6 @@ public class ServiceInstancesResource {
       } catch (final ServiceInstanceAlreadyExistsException serviceInstanceAlreadyExistsException) {
         // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
         temp = Response.status(200).entity(serviceInstanceAlreadyExistsException.getResponse()).build();
-        // TODO: add IdenticalServiceInstanceAlreadyExistsException
       } finally {
         returnValue = temp;
       }
