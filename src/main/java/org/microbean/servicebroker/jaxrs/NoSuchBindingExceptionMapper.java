@@ -19,18 +19,18 @@ package org.microbean.servicebroker.jaxrs;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.ws.rs.WebApplicationException;
-
 import javax.ws.rs.core.Response;
 
 import javax.ws.rs.ext.Provider;
 
-import org.microbean.servicebroker.api.command.UnbindablePlanException;
+import org.microbean.servicebroker.api.command.AbstractCommand;
+import org.microbean.servicebroker.api.command.NoSuchBindingException;
+import org.microbean.servicebroker.api.command.ProvisionBindingCommand;
 
 @Provider
-public final class UnbindablePlanExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<UnbindablePlanException> {
+public final class NoSuchBindingExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<NoSuchBindingException> {
 
-  public UnbindablePlanExceptionMapper() {
+  public NoSuchBindingExceptionMapper() {
     super();
     final String cn = this.getClass().getName();
     final Logger logger = Logger.getLogger(cn);
@@ -43,7 +43,7 @@ public final class UnbindablePlanExceptionMapper implements javax.ws.rs.ext.Exce
   }
   
   @Override
-  public final Response toResponse(final UnbindablePlanException exception) {
+  public final Response toResponse(final NoSuchBindingException exception) {
     final String cn = this.getClass().getName();
     final Logger logger = Logger.getLogger(cn);
     assert logger != null;
@@ -51,6 +51,7 @@ public final class UnbindablePlanExceptionMapper implements javax.ws.rs.ext.Exce
     if (logger.isLoggable(Level.FINER)) {
       logger.entering(cn, mn, exception);
     }
+
     String message = exception.getMessage();
     if (message == null) {
       message = exception.toString();
@@ -58,10 +59,23 @@ public final class UnbindablePlanExceptionMapper implements javax.ws.rs.ext.Exce
     if (logger.isLoggable(Level.SEVERE)) {
       logger.logp(Level.SEVERE, cn, mn, message, exception);
     }
-    // The specification is ambiguous as to whether a 404 or a 400
-    // is called for.  See
-    // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#binding.
-    final Response returnValue = Response.status(404).entity("{}").build();
+
+    final Response returnValue;
+    final AbstractCommand command = exception.getCommand();
+    if (command instanceof ProvisionBindingCommand) {
+      // Edge case; if someone asked to provision a service instance,
+      // of course it doesn't exist.  So that's not a bad request.
+      returnValue = Response.serverError()
+        .entity("{\n  \"description\" : \"" + message + "\"\n  }")
+        .build();
+    } else {
+      // See
+      // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-5.
+      returnValue = Response.status(410)
+        .entity("{}")
+        .build();
+    }
+    
     if (logger.isLoggable(Level.FINER)) {
       logger.exiting(cn, mn, returnValue);
     }

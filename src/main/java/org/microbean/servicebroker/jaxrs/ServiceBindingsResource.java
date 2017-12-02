@@ -95,42 +95,11 @@ public class ServiceBindingsResource {
       // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#binding.
       returnValue = Response.status(404).entity("{}").build();
     } else {
-      Response temp = null;
-      try {
-        final ProvisionBindingCommand.Response commandResponse = this.serviceBroker.execute(command);
-        if (commandResponse == null) {
-          temp = Response.serverError().entity("{}").build();
-        } else {
-          temp = Response.status(201).entity(commandResponse).build();
-        }
-      } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
-        // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
-        temp = Response.status(Response.Status.BAD_REQUEST)
-          .entity("{\"description\":\"" + noSuchServiceInstanceException.toString() + "\"}")
-          .build();
-      } catch (final UnbindablePlanException unbindablePlanException) {
-        // The specification is ambiguous as to whether a 404 or a 400
-        // is called for.  See
-        // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#binding.
-        temp = Response.status(404).entity("{}").build();
-      } catch (final IdenticalBindingAlreadyExistsException identicalBindingAlreadyExistsException) {
-        // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
-        final AbstractResponse abstractResponse = identicalBindingAlreadyExistsException.getResponse();
-        if (abstractResponse == null) {
-          temp = Response.ok().entity("{}").build();
-        } else {
-          temp = Response.ok().entity(abstractResponse).build();
-        }
-      } catch (final BindingAlreadyExistsException bindingAlreadyExistsException) {
-        // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
-        final String message = bindingAlreadyExistsException.getMessage();
-        if (message == null) {
-          temp = Response.status(409).entity("{}").build();
-        } else {
-          temp = Response.status(409).entity("{\n  \"description\" : \"" + message + "\"\n  }").build();
-        }
-      } finally {
-        returnValue = temp;
+      final ProvisionBindingCommand.Response commandResponse = this.serviceBroker.execute(command);
+      if (commandResponse == null) {
+        returnValue = Response.serverError().entity("{}").build();
+      } else {
+        returnValue = Response.status(201).entity(commandResponse).build();
       }
     }
 
@@ -161,21 +130,13 @@ public class ServiceBindingsResource {
     Objects.requireNonNull(planId);
 
     final DeleteBindingCommand command = new DeleteBindingCommand(instanceId, bindingId, serviceId, planId);
+
+    final DeleteBindingCommand.Response commandResponse = this.serviceBroker.execute(command);
     final Response returnValue;
-    Response temp = null;
-    try {
-      final DeleteBindingCommand.Response commandResponse = this.serviceBroker.execute(command);
-      if (commandResponse == null) {
-        temp = Response.serverError().entity("{}").build();
-      } else {
-        temp = Response.ok(commandResponse).build();
-      }
-    } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
-      temp = Response.status(Response.Status.GONE)
-        .entity("{\"description\":\"" + noSuchServiceInstanceException.toString() + "\"}")
-        .build();
-    } finally {
-      returnValue = temp;
+    if (commandResponse == null) {
+      returnValue = Response.serverError().entity("{}").build();
+    } else {
+      returnValue = Response.ok(commandResponse).build();
     }
 
     if (logger.isLoggable(Level.FINER)) {

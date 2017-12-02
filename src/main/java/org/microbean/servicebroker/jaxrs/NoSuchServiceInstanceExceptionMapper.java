@@ -24,18 +24,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import org.microbean.servicebroker.api.command.AbstractCommand;
-import org.microbean.servicebroker.api.command.AbstractResponse;
-import org.microbean.servicebroker.api.command.BindingAlreadyExistsException;
-import org.microbean.servicebroker.api.command.IdenticalServiceInstanceAlreadyExistsException;
-import org.microbean.servicebroker.api.command.InvalidServiceBrokerCommandException;
+import org.microbean.servicebroker.api.command.DeleteServiceInstanceCommand;
+import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
 import org.microbean.servicebroker.api.command.ProvisionServiceInstanceCommand;
-import org.microbean.servicebroker.api.command.ServiceInstanceAlreadyExistsException;
-import org.microbean.servicebroker.api.command.UnbindablePlanException;
 
 @Provider
-public final class InvalidServiceBrokerCommandExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<InvalidServiceBrokerCommandException> {
+public final class NoSuchServiceInstanceExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<NoSuchServiceInstanceException> {
 
-  public InvalidServiceBrokerCommandExceptionMapper() {
+  public NoSuchServiceInstanceExceptionMapper() {
     super();
     final String cn = this.getClass().getName();
     final Logger logger = Logger.getLogger(cn);
@@ -48,7 +44,7 @@ public final class InvalidServiceBrokerCommandExceptionMapper implements javax.w
   }
   
   @Override
-  public final Response toResponse(final InvalidServiceBrokerCommandException exception) {
+  public final Response toResponse(final NoSuchServiceInstanceException exception) {
     final String cn = this.getClass().getName();
     final Logger logger = Logger.getLogger(cn);
     assert logger != null;
@@ -61,20 +57,27 @@ public final class InvalidServiceBrokerCommandExceptionMapper implements javax.w
     if (message == null) {
       message = exception.toString();
     }
-
     if (logger.isLoggable(Level.SEVERE)) {
       logger.logp(Level.SEVERE, cn, mn, message, exception);
     }
-
+    
     final Response returnValue;
-    if (exception instanceof UnbindablePlanException) {
-      // The specification is ambiguous as to whether a 404 or a 400
-      // is called for.  See
-      // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#binding.
-      returnValue = Response.status(404).entity("{}").build();
+    final AbstractCommand command = exception.getCommand();
+    if (command instanceof DeleteServiceInstanceCommand) {
+      // See
+      // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-6
+      returnValue = Response.status(Response.Status.GONE).entity("{}").build();
+    } else if (command instanceof ProvisionServiceInstanceCommand) {
+      // Edge case; if someone asked to provision a service instance,
+      // of course it doesn't exist.  So that's not a bad request.
+      returnValue = Response.status(500)
+        .entity("{\n  \"description\" : \"" + message + "\"\n  }")
+        .build();
     } else {
+      // No matter what else the command might be, it indicates a
+      // problem with the request.
       returnValue = Response.status(400)
-        .entity("{\"description\": \"" + message + "\"}")
+        .entity("{\n  \"description\" : \"" + message + "\"\n  }")
         .build();
     }
     

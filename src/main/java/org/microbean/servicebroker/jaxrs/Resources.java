@@ -36,10 +36,13 @@ public final class Resources {
     rootResourceClasses = Collections.unmodifiableSet(classes);
 
     classes = new HashSet<>();
+    classes.add(BindingAlreadyExistsExceptionMapper.class);
     classes.add(ExceptionMapper.class);
     classes.add(InvalidServiceBrokerCommandExceptionMapper.class);
     classes.add(InvalidServiceBrokerQueryExceptionMapper.class);
-    classes.add(UnbindablePlanExceptionMapper.class);
+    classes.add(NoSuchBindingExceptionMapper.class);
+    classes.add(NoSuchServiceInstanceExceptionMapper.class);
+    classes.add(ServiceInstanceAlreadyExistsExceptionMapper.class);
     exceptionMapperClasses = Collections.unmodifiableSet(classes);
 
     classes = new HashSet<>(rootResourceClasses);

@@ -104,7 +104,8 @@ public class ServiceInstancesResource {
         temp = Response.ok().entity(lastOperation).build();
       }
     } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
-      // See
+      // Normally exceptions are handled by appropriate mappers.  This
+      // is a special case.  See
       // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-1
       temp = Response.status(410).entity("{}").build();
     } finally {
@@ -148,31 +149,20 @@ public class ServiceInstancesResource {
                                                 "  \"description\": \"This service plan requires client support for asynchronous service operations.\"\n" +
                                                 "}").build();
     } else {
-      Response temp = null;
-      try {
-        final ProvisionServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
-        if (commandResponse == null) {
-          temp = Response.serverError().entity("{}").build();
-        } else if (commandResponse.getOperation() == null) {        
-          // The specification mandates a 201 return code, but does not
-          // say what the Location: header should contain, so we don't
-          // return one.
-          // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
-          temp = Response.status(201).entity(commandResponse).build();
-        } else {
-          // The command response contained an operation property, so
-          // that means it's asynchronous.
-          // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
-          temp = Response.status(202).entity(commandResponse).build();
-        }
-      } catch (final IdenticalServiceInstanceAlreadyExistsException identicalServiceInstanceAlreadyExistsException) {
+      final ProvisionServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
+      if (commandResponse == null) {
+        returnValue = Response.serverError().entity("{}").build();
+      } else if (commandResponse.getOperation() == null) {        
+        // The specification mandates a 201 return code, but does not
+        // say what the Location: header should contain, so we don't
+        // return one.
         // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
-        temp = Response.status(409).entity(identicalServiceInstanceAlreadyExistsException.getResponse()).build();
-      } catch (final ServiceInstanceAlreadyExistsException serviceInstanceAlreadyExistsException) {
+        returnValue = Response.status(201).entity(commandResponse).build();
+      } else {
+        // The command response contained an operation property, so
+        // that means it's asynchronous.
         // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
-        temp = Response.status(200).entity(serviceInstanceAlreadyExistsException.getResponse()).build();
-      } finally {
-        returnValue = temp;
+        returnValue = Response.status(202).entity(commandResponse).build();
       }
     }
 
@@ -213,28 +203,20 @@ public class ServiceInstancesResource {
                                                 "  \"description\": \"This service plan requires client support for asynchronous service operations.\"\n" +
                                                 "}").build();
     } else {
-      Response temp = null;
-      try {
-        final UpdateServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
-        if (commandResponse == null) {
-          temp = Response.serverError().entity("{}").build();
-        } else if (commandResponse.getOperation() == null) {        
-          // The specification mandates a 201 return code, but does not
-          // say what the Location: header should contain, so we don't
-          // return one.
-          // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
-          temp = Response.status(201).entity(commandResponse).build();
-        } else {
-          // The command response contained an operation property, so
-          // that means it's asynchronous.
-          // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
-          temp = Response.status(202).entity(commandResponse).build();
-        }
-      } catch (final ServiceInstanceAlreadyExistsException serviceInstanceAlreadyExistsException) {
+      final UpdateServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
+      if (commandResponse == null) {
+        returnValue = Response.serverError().entity("{}").build();
+      } else if (commandResponse.getOperation() == null) {        
+        // The specification mandates a 201 return code, but does not
+        // say what the Location: header should contain, so we don't
+        // return one.
         // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
-        temp = Response.status(200).entity(serviceInstanceAlreadyExistsException.getResponse()).build();
-      } finally {
-        returnValue = temp;
+        returnValue = Response.status(201).entity(commandResponse).build();
+      } else {
+        // The command response contained an operation property, so
+        // that means it's asynchronous.
+        // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
+        returnValue = Response.status(202).entity(commandResponse).build();
       }
     }
 
@@ -272,18 +254,11 @@ public class ServiceInstancesResource {
                                                 "}").build();
     } else {
       final DeleteServiceInstanceCommand command = new DeleteServiceInstanceCommand(instanceId, serviceId, planId, acceptsIncomplete);
-      Response temp = null;
-      try {
-        final DeleteServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
-        if (commandResponse == null) {
-          temp = Response.serverError().entity("{}").build();
-        } else {
-          temp = Response.ok(commandResponse).build();
-        }
-      } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
-        temp = Response.status(Response.Status.GONE).entity(noSuchServiceInstanceException.getResponse()).build();
-      } finally {
-        returnValue = temp;
+      final DeleteServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
+      if (commandResponse == null) {
+        returnValue = Response.serverError().entity("{}").build();
+      } else {
+        returnValue = Response.ok(commandResponse).build();
       }
     }
 

@@ -23,19 +23,14 @@ import javax.ws.rs.core.Response;
 
 import javax.ws.rs.ext.Provider;
 
-import org.microbean.servicebroker.api.command.AbstractCommand;
 import org.microbean.servicebroker.api.command.AbstractResponse;
 import org.microbean.servicebroker.api.command.BindingAlreadyExistsException;
-import org.microbean.servicebroker.api.command.IdenticalServiceInstanceAlreadyExistsException;
-import org.microbean.servicebroker.api.command.InvalidServiceBrokerCommandException;
-import org.microbean.servicebroker.api.command.ProvisionServiceInstanceCommand;
-import org.microbean.servicebroker.api.command.ServiceInstanceAlreadyExistsException;
-import org.microbean.servicebroker.api.command.UnbindablePlanException;
+import org.microbean.servicebroker.api.command.IdenticalBindingAlreadyExistsException;
 
 @Provider
-public final class InvalidServiceBrokerCommandExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<InvalidServiceBrokerCommandException> {
+public final class BindingAlreadyExistsExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<BindingAlreadyExistsException> {
 
-  public InvalidServiceBrokerCommandExceptionMapper() {
+  public BindingAlreadyExistsExceptionMapper() {
     super();
     final String cn = this.getClass().getName();
     final Logger logger = Logger.getLogger(cn);
@@ -48,7 +43,7 @@ public final class InvalidServiceBrokerCommandExceptionMapper implements javax.w
   }
   
   @Override
-  public final Response toResponse(final InvalidServiceBrokerCommandException exception) {
+  public final Response toResponse(final BindingAlreadyExistsException exception) {
     final String cn = this.getClass().getName();
     final Logger logger = Logger.getLogger(cn);
     assert logger != null;
@@ -61,21 +56,26 @@ public final class InvalidServiceBrokerCommandExceptionMapper implements javax.w
     if (message == null) {
       message = exception.toString();
     }
-
     if (logger.isLoggable(Level.SEVERE)) {
       logger.logp(Level.SEVERE, cn, mn, message, exception);
     }
 
     final Response returnValue;
-    if (exception instanceof UnbindablePlanException) {
-      // The specification is ambiguous as to whether a 404 or a 400
-      // is called for.  See
-      // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#binding.
-      returnValue = Response.status(404).entity("{}").build();
+    if (exception instanceof IdenticalBindingAlreadyExistsException) {
+// See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
+      final AbstractResponse abstractResponse = exception.getResponse();
+      if (abstractResponse == null) {
+        returnValue = Response.ok().entity("{}").build();
+      } else {
+        returnValue = Response.ok().entity(abstractResponse).build();
+      }
     } else {
-      returnValue = Response.status(400)
-        .entity("{\"description\": \"" + message + "\"}")
-        .build();
+      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
+      if (message == null) {
+        returnValue = Response.status(409).entity("{}").build();
+      } else {
+        returnValue = Response.status(409).entity("{\n  \"description\" : \"" + message + "\"\n  }").build();
+      }
     }
     
     if (logger.isLoggable(Level.FINER)) {
