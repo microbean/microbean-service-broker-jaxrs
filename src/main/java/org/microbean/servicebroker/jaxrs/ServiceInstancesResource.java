@@ -27,6 +27,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+// import javax.ws.rs.PATCH; // sigh
 import javax.ws.rs.PUT;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Path;
@@ -49,6 +50,7 @@ import org.microbean.servicebroker.api.command.DeleteServiceInstanceCommand;
 import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
 import org.microbean.servicebroker.api.command.ProvisionServiceInstanceCommand;
 import org.microbean.servicebroker.api.command.ServiceInstanceAlreadyExistsException;
+import org.microbean.servicebroker.api.command.UpdateServiceInstanceCommand;
 
 @Path("/service_instances")
 @Produces(MediaType.APPLICATION_JSON)
@@ -131,22 +133,102 @@ public class ServiceInstancesResource {
     if (command.getInstanceId() == null) {
       command.setInstanceId(instanceId);
     }
+
     final Response returnValue;
-    Response temp = null;
-    try {
-      final ProvisionServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
-      if (commandResponse == null) {
-        temp = Response.serverError().entity("{}").build();
-      } else {
-        // The specification mandates a 201 return code, but does not
-        // say what the Location: header should contain, so we don't
-        // return one.
-        temp = Response.status(201).entity(commandResponse).build();
+    if (!acceptsIncomplete && this.serviceBroker.isAsynchronousOnly()) {
+      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#asynchronous-operations
+      returnValue = Response.status(422).entity("{\n" +
+                                                "  \"error\": \"AsyncRequired\",\n" +
+                                                "  \"description\": \"This service plan requires client support for asynchronous service operations.\"\n" +
+                                                "}").build();
+    } else {
+      Response temp = null;
+      try {
+        final ProvisionServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
+        if (commandResponse == null) {
+          temp = Response.serverError().entity("{}").build();
+        } else if (commandResponse.getOperation() == null) {        
+          // The specification mandates a 201 return code, but does not
+          // say what the Location: header should contain, so we don't
+          // return one.
+          // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
+          temp = Response.status(201).entity(commandResponse).build();
+        } else {
+          // The command response contained an operation property, so
+          // that means it's asynchronous.
+          // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
+          temp = Response.status(202).entity(commandResponse).build();
+        }
+      } catch (final ServiceInstanceAlreadyExistsException serviceInstanceAlreadyExistsException) {
+        // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
+        temp = Response.status(200).entity(serviceInstanceAlreadyExistsException.getResponse()).build();
+        // TODO: add IdenticalServiceInstanceAlreadyExistsException
+      } finally {
+        returnValue = temp;
       }
-    } catch (final ServiceInstanceAlreadyExistsException serviceInstanceAlreadyExistsException) {
-      temp = Response.status(200).entity(serviceInstanceAlreadyExistsException.getResponse()).build();
-    } finally {
-      returnValue = temp;
+    }
+
+    if (logger.isLoggable(Level.FINER)) {
+      logger.exiting(cn, mn, returnValue);
+    }
+    return returnValue;
+  }
+
+  @PATCH  
+  @Path("{instance_id}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response updateServiceInstance(@PathParam("instance_id") final String instanceId,
+                                        final UpdateServiceInstanceCommand command,
+                                        @QueryParam("accepts_incomplete") final boolean acceptsIncomplete)
+    throws ServiceBrokerException {
+    final String cn = this.getClass().getName();
+    final String mn = "updateServiceInstance";
+    final Logger logger = Logger.getLogger(cn);
+    assert logger != null;
+    if (logger.isLoggable(Level.FINER)) {
+      logger.entering(cn, mn, new Object[] { instanceId, command, Boolean.valueOf(acceptsIncomplete) });
+    }
+    Objects.requireNonNull(instanceId);
+    Objects.requireNonNull(command);
+
+    command.setAcceptsIncomplete(acceptsIncomplete);
+    
+    if (command.getInstanceId() == null) {
+      command.setInstanceId(instanceId);
+    }    
+    
+    final Response returnValue;
+    if (!acceptsIncomplete && this.serviceBroker.isAsynchronousOnly()) {
+      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#asynchronous-operations
+      returnValue = Response.status(422).entity("{\n" +
+                                                "  \"error\": \"AsyncRequired\",\n" +
+                                                "  \"description\": \"This service plan requires client support for asynchronous service operations.\"\n" +
+                                                "}").build();
+    } else {
+      Response temp = null;
+      try {
+        final UpdateServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
+        if (commandResponse == null) {
+          temp = Response.serverError().entity("{}").build();
+        } else if (commandResponse.getOperation() == null) {        
+          // The specification mandates a 201 return code, but does not
+          // say what the Location: header should contain, so we don't
+          // return one.
+          // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
+          temp = Response.status(201).entity(commandResponse).build();
+        } else {
+          // The command response contained an operation property, so
+          // that means it's asynchronous.
+          // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
+          temp = Response.status(202).entity(commandResponse).build();
+        }
+      } catch (final ServiceInstanceAlreadyExistsException serviceInstanceAlreadyExistsException) {
+        // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-2
+        temp = Response.status(200).entity(serviceInstanceAlreadyExistsException.getResponse()).build();
+        // TODO: add IdenticalServiceInstanceAlreadyExistsException
+      } finally {
+        returnValue = temp;
+      }
     }
 
     if (logger.isLoggable(Level.FINER)) {
@@ -174,26 +256,39 @@ public class ServiceInstancesResource {
     Objects.requireNonNull(serviceId);
     Objects.requireNonNull(planId);
 
-    final DeleteServiceInstanceCommand command = new DeleteServiceInstanceCommand(instanceId, serviceId, planId, acceptsIncomplete);
     final Response returnValue;
-    Response temp = null;
-    try {
-      final DeleteServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
-      if (commandResponse == null) {
-        temp = Response.serverError().entity("{}").build();
-      } else {
-        temp = Response.ok(commandResponse).build();
+    if (!acceptsIncomplete && this.serviceBroker.isAsynchronousOnly()) {
+      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#asynchronous-operations
+      returnValue = Response.status(422).entity("{\n" +
+                                                "  \"error\": \"AsyncRequired\",\n" +
+                                                "  \"description\": \"This service plan requires client support for asynchronous service operations.\"\n" +
+                                                "}").build();
+    } else {
+      final DeleteServiceInstanceCommand command = new DeleteServiceInstanceCommand(instanceId, serviceId, planId, acceptsIncomplete);
+      Response temp = null;
+      try {
+        final DeleteServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);
+        if (commandResponse == null) {
+          temp = Response.serverError().entity("{}").build();
+        } else {
+          temp = Response.ok(commandResponse).build();
+        }
+      } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
+        temp = Response.status(Response.Status.GONE).entity(noSuchServiceInstanceException.getResponse()).build();
+      } finally {
+        returnValue = temp;
       }
-    } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
-      temp = Response.status(Response.Status.GONE).entity(noSuchServiceInstanceException.getResponse()).build();
-    } finally {
-      returnValue = temp;
     }
 
     if (logger.isLoggable(Level.FINER)) {
       logger.exiting(cn, mn, returnValue);
     }
     return returnValue;
+  }
+
+  @javax.ws.rs.HttpMethod("PATCH")
+  private @interface PATCH {
+
   }
   
 }
