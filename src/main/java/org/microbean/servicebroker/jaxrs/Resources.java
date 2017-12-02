@@ -39,6 +39,7 @@ public final class Resources {
     classes.add(ExceptionMapper.class);
     classes.add(InvalidServiceBrokerCommandExceptionMapper.class);
     classes.add(InvalidServiceBrokerQueryExceptionMapper.class);
+    classes.add(UnbindablePlanExceptionMapper.class);
     exceptionMapperClasses = Collections.unmodifiableSet(classes);
 
     classes = new HashSet<>(rootResourceClasses);
