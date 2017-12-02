@@ -114,18 +114,19 @@ public class ServiceInstancesResource {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response putServiceInstance(@PathParam("instance_id") final String instanceId,
                                      final ProvisionServiceInstanceCommand command,
-                                     @Context final UriInfo uriInfo)
+                                     @QueryParam("accepts_incomplete") final boolean acceptsIncomplete)
     throws ServiceBrokerException {
     final String cn = this.getClass().getName();
     final String mn = "putServiceInstance";
     final Logger logger = Logger.getLogger(cn);
     assert logger != null;
     if (logger.isLoggable(Level.FINER)) {
-      logger.entering(cn, mn, new Object[] { instanceId, command, uriInfo });
+      logger.entering(cn, mn, new Object[] { instanceId, command });
     }
     Objects.requireNonNull(instanceId);
     Objects.requireNonNull(command);
-    Objects.requireNonNull(uriInfo);
+
+    command.setAcceptsIncomplete(acceptsIncomplete);
     
     if (command.getInstanceId() == null) {
       command.setInstanceId(instanceId);
