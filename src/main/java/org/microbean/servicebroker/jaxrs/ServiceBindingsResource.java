@@ -42,10 +42,12 @@ import javax.ws.rs.core.Response;
 import org.microbean.servicebroker.api.ServiceBroker;
 import org.microbean.servicebroker.api.ServiceBrokerException;
 
+import org.microbean.servicebroker.api.command.AbstractResponse;
 import org.microbean.servicebroker.api.command.NoSuchServiceInstanceException;
-
 import org.microbean.servicebroker.api.command.DeleteBindingCommand;
 import org.microbean.servicebroker.api.command.ProvisionBindingCommand;
+import org.microbean.servicebroker.api.command.IdenticalBindingAlreadyExistsException;
+import org.microbean.servicebroker.api.command.BindingAlreadyExistsException;
 
 @Path("/service_instances/{instance_id}/service_bindings")
 @Produces(MediaType.APPLICATION_JSON)
@@ -95,9 +97,26 @@ public class ServiceBindingsResource {
         temp = Response.status(201).entity(commandResponse).build();
       }
     } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
+      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
       temp = Response.status(Response.Status.BAD_REQUEST)
         .entity("{\"description\":\"" + noSuchServiceInstanceException.toString() + "\"}")
         .build();
+    } catch (final IdenticalBindingAlreadyExistsException identicalBindingAlreadyExistsException) {
+      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
+      final AbstractResponse abstractResponse = identicalBindingAlreadyExistsException.getResponse();
+      if (abstractResponse == null) {
+        temp = Response.ok().entity("{}").build();
+      } else {
+        temp = Response.ok().entity(abstractResponse).build();
+      }
+    } catch (final BindingAlreadyExistsException bindingAlreadyExistsException) {
+      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
+      final String message = bindingAlreadyExistsException.getMessage();
+      if (message == null) {
+        temp = Response.status(409).entity("{}").build();
+      } else {
+        temp = Response.status(409).entity("{\n  \"description\" : \"" + message + "\"\n  }").build();
+      }
     } finally {
       returnValue = temp;
     }
