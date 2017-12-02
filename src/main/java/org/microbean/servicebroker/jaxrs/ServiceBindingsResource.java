@@ -88,37 +88,44 @@ public class ServiceBindingsResource {
     }
 
     final Response returnValue;
-    Response temp = null;
-    try {
-      final ProvisionBindingCommand.Response commandResponse = this.serviceBroker.execute(command);
-      if (commandResponse == null) {
-        temp = Response.serverError().entity("{}").build();
-      } else {
-        temp = Response.status(201).entity(commandResponse).build();
+    if (!this.serviceBroker.isPlanBindable(command.getServiceId(), command.getPlanId())) {
+      // The specification is ambiguous as to whether a 404 or a 400
+      // is called for.  See
+      // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#binding.
+      returnValue = Response.status(404).entity("{}").build();
+    } else {
+      Response temp = null;
+      try {
+        final ProvisionBindingCommand.Response commandResponse = this.serviceBroker.execute(command);
+        if (commandResponse == null) {
+          temp = Response.serverError().entity("{}").build();
+        } else {
+          temp = Response.status(201).entity(commandResponse).build();
+        }
+      } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
+        // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
+        temp = Response.status(Response.Status.BAD_REQUEST)
+          .entity("{\"description\":\"" + noSuchServiceInstanceException.toString() + "\"}")
+          .build();
+      } catch (final IdenticalBindingAlreadyExistsException identicalBindingAlreadyExistsException) {
+        // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
+        final AbstractResponse abstractResponse = identicalBindingAlreadyExistsException.getResponse();
+        if (abstractResponse == null) {
+          temp = Response.ok().entity("{}").build();
+        } else {
+          temp = Response.ok().entity(abstractResponse).build();
+        }
+      } catch (final BindingAlreadyExistsException bindingAlreadyExistsException) {
+        // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
+        final String message = bindingAlreadyExistsException.getMessage();
+        if (message == null) {
+          temp = Response.status(409).entity("{}").build();
+        } else {
+          temp = Response.status(409).entity("{\n  \"description\" : \"" + message + "\"\n  }").build();
+        }
+      } finally {
+        returnValue = temp;
       }
-    } catch (final NoSuchServiceInstanceException noSuchServiceInstanceException) {
-      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
-      temp = Response.status(Response.Status.BAD_REQUEST)
-        .entity("{\"description\":\"" + noSuchServiceInstanceException.toString() + "\"}")
-        .build();
-    } catch (final IdenticalBindingAlreadyExistsException identicalBindingAlreadyExistsException) {
-      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
-      final AbstractResponse abstractResponse = identicalBindingAlreadyExistsException.getResponse();
-      if (abstractResponse == null) {
-        temp = Response.ok().entity("{}").build();
-      } else {
-        temp = Response.ok().entity(abstractResponse).build();
-      }
-    } catch (final BindingAlreadyExistsException bindingAlreadyExistsException) {
-      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#response-4
-      final String message = bindingAlreadyExistsException.getMessage();
-      if (message == null) {
-        temp = Response.status(409).entity("{}").build();
-      } else {
-        temp = Response.status(409).entity("{\n  \"description\" : \"" + message + "\"\n  }").build();
-      }
-    } finally {
-      returnValue = temp;
     }
 
     if (logger.isLoggable(Level.FINER)) {
