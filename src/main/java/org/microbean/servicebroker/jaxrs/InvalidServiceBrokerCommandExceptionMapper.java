@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import org.microbean.servicebroker.api.command.InvalidServiceBrokerCommandException;
+import org.microbean.servicebroker.api.command.UnbindablePlanException;
 
 @Provider
 public final class InvalidServiceBrokerCommandExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<InvalidServiceBrokerCommandException> {
@@ -58,9 +59,17 @@ public final class InvalidServiceBrokerCommandExceptionMapper implements javax.w
     if (logger.isLoggable(Level.SEVERE)) {
       logger.logp(Level.SEVERE, cn, mn, message, exception);
     }
-    final Response returnValue = Response.status(400)
-      .entity("{\"description\": \"" + message + "\"}")
-      .build();
+    final Response returnValue;
+    if (exception instanceof UnbindablePlanException) {
+      // The specification is ambiguous as to whether a 404 or a 400
+      // is called for.  See
+      // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#binding.
+      returnValue = Response.status(404).entity("{}").build();
+    } else {
+      returnValue = Response.status(400)
+        .entity("{\"description\": \"" + message + "\"}")
+        .build();
+    }
     if (logger.isLoggable(Level.FINER)) {
       logger.exiting(cn, mn, returnValue);
     }
