@@ -45,7 +45,7 @@ public final class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Ex
     final String cn = this.getClass().getName();
     final Logger logger = Logger.getLogger(cn);
     assert logger != null;
-    final String mn = "<init>";
+    final String mn = "toResponse";
     if (logger.isLoggable(Level.FINER)) {
       logger.entering(cn, mn, exception);
     }
