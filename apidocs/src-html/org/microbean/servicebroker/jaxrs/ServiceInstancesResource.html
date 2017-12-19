@@ -93,11 +93,11 @@
 <span class="sourceLineNo">085</span>    if (logger.isLoggable(Level.FINER)) {<a name="line.85"></a>
 <span class="sourceLineNo">086</span>      logger.entering(cn, mn, new Object[] { instanceId, serviceId, planId, operationId });<a name="line.86"></a>
 <span class="sourceLineNo">087</span>    }<a name="line.87"></a>
-<span class="sourceLineNo">088</span>    Objects.requireNonNull(instanceId);<a name="line.88"></a>
+<span class="sourceLineNo">088</span>    Objects.requireNonNull(instanceId, () -&gt; "instanceId must not be null");<a name="line.88"></a>
 <span class="sourceLineNo">089</span><a name="line.89"></a>
 <span class="sourceLineNo">090</span>    // The specification implies but does not state that operation is required.<a name="line.90"></a>
 <span class="sourceLineNo">091</span>    // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#parameters<a name="line.91"></a>
-<span class="sourceLineNo">092</span>    if (operationId == null) {<a name="line.92"></a>
+<span class="sourceLineNo">092</span>    if (operationId == null &amp;&amp; !Boolean.getBoolean("org.microbean.servicebroker.api.lenient")) {<a name="line.92"></a>
 <span class="sourceLineNo">093</span>      throw new BadRequestException("The operation query parameter was not specified");<a name="line.93"></a>
 <span class="sourceLineNo">094</span>    }<a name="line.94"></a>
 <span class="sourceLineNo">095</span>    <a name="line.95"></a>
@@ -140,8 +140,8 @@
 <span class="sourceLineNo">132</span>    if (logger.isLoggable(Level.FINER)) {<a name="line.132"></a>
 <span class="sourceLineNo">133</span>      logger.entering(cn, mn, new Object[] { instanceId, command });<a name="line.133"></a>
 <span class="sourceLineNo">134</span>    }<a name="line.134"></a>
-<span class="sourceLineNo">135</span>    Objects.requireNonNull(instanceId);<a name="line.135"></a>
-<span class="sourceLineNo">136</span>    Objects.requireNonNull(command);<a name="line.136"></a>
+<span class="sourceLineNo">135</span>    Objects.requireNonNull(instanceId, () -&gt; "instanceId must not be null");<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    Objects.requireNonNull(command, () -&gt; "command must not be null");<a name="line.136"></a>
 <span class="sourceLineNo">137</span><a name="line.137"></a>
 <span class="sourceLineNo">138</span>    command.setAcceptsIncomplete(acceptsIncomplete);<a name="line.138"></a>
 <span class="sourceLineNo">139</span>    <a name="line.139"></a>
@@ -194,8 +194,8 @@
 <span class="sourceLineNo">186</span>    if (logger.isLoggable(Level.FINER)) {<a name="line.186"></a>
 <span class="sourceLineNo">187</span>      logger.entering(cn, mn, new Object[] { instanceId, command, Boolean.valueOf(acceptsIncomplete) });<a name="line.187"></a>
 <span class="sourceLineNo">188</span>    }<a name="line.188"></a>
-<span class="sourceLineNo">189</span>    Objects.requireNonNull(instanceId);<a name="line.189"></a>
-<span class="sourceLineNo">190</span>    Objects.requireNonNull(command);<a name="line.190"></a>
+<span class="sourceLineNo">189</span>    Objects.requireNonNull(instanceId, () -&gt; "instanceId must not be null");<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    Objects.requireNonNull(command, () -&gt; "command must not be null");<a name="line.190"></a>
 <span class="sourceLineNo">191</span><a name="line.191"></a>
 <span class="sourceLineNo">192</span>    command.setAcceptsIncomplete(acceptsIncomplete);<a name="line.192"></a>
 <span class="sourceLineNo">193</span>    <a name="line.193"></a>
@@ -249,41 +249,44 @@
 <span class="sourceLineNo">241</span>    if (logger.isLoggable(Level.FINER)) {<a name="line.241"></a>
 <span class="sourceLineNo">242</span>      logger.entering(cn, mn, new Object[] { instanceId, serviceId, planId, acceptsIncomplete });<a name="line.242"></a>
 <span class="sourceLineNo">243</span>    }<a name="line.243"></a>
-<span class="sourceLineNo">244</span>    Objects.requireNonNull(instanceId);<a name="line.244"></a>
-<span class="sourceLineNo">245</span>    Objects.requireNonNull(serviceId);<a name="line.245"></a>
-<span class="sourceLineNo">246</span>    Objects.requireNonNull(planId);<a name="line.246"></a>
-<span class="sourceLineNo">247</span><a name="line.247"></a>
-<span class="sourceLineNo">248</span>    final Response returnValue;<a name="line.248"></a>
-<span class="sourceLineNo">249</span>    if (!acceptsIncomplete &amp;&amp; this.serviceBroker.isAsynchronousOnly()) {<a name="line.249"></a>
-<span class="sourceLineNo">250</span>      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#asynchronous-operations<a name="line.250"></a>
-<span class="sourceLineNo">251</span>      returnValue = Response.status(422).entity("{\n" +<a name="line.251"></a>
-<span class="sourceLineNo">252</span>                                                "  \"error\": \"AsyncRequired\",\n" +<a name="line.252"></a>
-<span class="sourceLineNo">253</span>                                                "  \"description\": \"This service plan requires client support for asynchronous service operations.\"\n" +<a name="line.253"></a>
-<span class="sourceLineNo">254</span>                                                "}").build();<a name="line.254"></a>
-<span class="sourceLineNo">255</span>    } else {<a name="line.255"></a>
-<span class="sourceLineNo">256</span>      final DeleteServiceInstanceCommand command = new DeleteServiceInstanceCommand(instanceId, serviceId, planId, acceptsIncomplete);<a name="line.256"></a>
-<span class="sourceLineNo">257</span>      final DeleteServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);<a name="line.257"></a>
-<span class="sourceLineNo">258</span>      if (commandResponse == null) {<a name="line.258"></a>
-<span class="sourceLineNo">259</span>        returnValue = Response.serverError().entity("{}").build();<a name="line.259"></a>
-<span class="sourceLineNo">260</span>      } else {<a name="line.260"></a>
-<span class="sourceLineNo">261</span>        returnValue = Response.ok(commandResponse).build();<a name="line.261"></a>
-<span class="sourceLineNo">262</span>      }<a name="line.262"></a>
-<span class="sourceLineNo">263</span>    }<a name="line.263"></a>
-<span class="sourceLineNo">264</span><a name="line.264"></a>
-<span class="sourceLineNo">265</span>    if (logger.isLoggable(Level.FINER)) {<a name="line.265"></a>
-<span class="sourceLineNo">266</span>      logger.exiting(cn, mn, returnValue);<a name="line.266"></a>
-<span class="sourceLineNo">267</span>    }<a name="line.267"></a>
-<span class="sourceLineNo">268</span>    return returnValue;<a name="line.268"></a>
-<span class="sourceLineNo">269</span>  }<a name="line.269"></a>
-<span class="sourceLineNo">270</span><a name="line.270"></a>
-<span class="sourceLineNo">271</span>  @Target({ ElementType.METHOD })<a name="line.271"></a>
-<span class="sourceLineNo">272</span>  @Retention(RetentionPolicy.RUNTIME)<a name="line.272"></a>
-<span class="sourceLineNo">273</span>  @javax.ws.rs.HttpMethod("PATCH")<a name="line.273"></a>
-<span class="sourceLineNo">274</span>  private @interface PATCH {<a name="line.274"></a>
-<span class="sourceLineNo">275</span><a name="line.275"></a>
-<span class="sourceLineNo">276</span>  }<a name="line.276"></a>
-<span class="sourceLineNo">277</span>  <a name="line.277"></a>
-<span class="sourceLineNo">278</span>}<a name="line.278"></a>
+<span class="sourceLineNo">244</span>    Objects.requireNonNull(instanceId, () -&gt; "instanceId must not be null");<a name="line.244"></a>
+<span class="sourceLineNo">245</span><a name="line.245"></a>
+<span class="sourceLineNo">246</span>    if (!Boolean.getBoolean("org.microbean.servicebroker.api.lenient")) {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>      Objects.requireNonNull(serviceId, () -&gt; "serviceId must not be null");<a name="line.247"></a>
+<span class="sourceLineNo">248</span>      Objects.requireNonNull(planId, () -&gt; "planId must not be null");<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    }<a name="line.249"></a>
+<span class="sourceLineNo">250</span><a name="line.250"></a>
+<span class="sourceLineNo">251</span>    final Response returnValue;<a name="line.251"></a>
+<span class="sourceLineNo">252</span>    if (!acceptsIncomplete &amp;&amp; this.serviceBroker.isAsynchronousOnly()) {<a name="line.252"></a>
+<span class="sourceLineNo">253</span>      // See https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#asynchronous-operations<a name="line.253"></a>
+<span class="sourceLineNo">254</span>      returnValue = Response.status(422).entity("{\n" +<a name="line.254"></a>
+<span class="sourceLineNo">255</span>                                                "  \"error\": \"AsyncRequired\",\n" +<a name="line.255"></a>
+<span class="sourceLineNo">256</span>                                                "  \"description\": \"This service plan requires client support for asynchronous service operations.\"\n" +<a name="line.256"></a>
+<span class="sourceLineNo">257</span>                                                "}").build();<a name="line.257"></a>
+<span class="sourceLineNo">258</span>    } else {<a name="line.258"></a>
+<span class="sourceLineNo">259</span>      final DeleteServiceInstanceCommand command = new DeleteServiceInstanceCommand(instanceId, serviceId, planId, acceptsIncomplete);<a name="line.259"></a>
+<span class="sourceLineNo">260</span>      final DeleteServiceInstanceCommand.Response commandResponse = this.serviceBroker.execute(command);<a name="line.260"></a>
+<span class="sourceLineNo">261</span>      if (commandResponse == null) {<a name="line.261"></a>
+<span class="sourceLineNo">262</span>        returnValue = Response.serverError().entity("{}").build();<a name="line.262"></a>
+<span class="sourceLineNo">263</span>      } else {<a name="line.263"></a>
+<span class="sourceLineNo">264</span>        returnValue = Response.ok(commandResponse).build();<a name="line.264"></a>
+<span class="sourceLineNo">265</span>      }<a name="line.265"></a>
+<span class="sourceLineNo">266</span>    }<a name="line.266"></a>
+<span class="sourceLineNo">267</span><a name="line.267"></a>
+<span class="sourceLineNo">268</span>    if (logger.isLoggable(Level.FINER)) {<a name="line.268"></a>
+<span class="sourceLineNo">269</span>      logger.exiting(cn, mn, returnValue);<a name="line.269"></a>
+<span class="sourceLineNo">270</span>    }<a name="line.270"></a>
+<span class="sourceLineNo">271</span>    return returnValue;<a name="line.271"></a>
+<span class="sourceLineNo">272</span>  }<a name="line.272"></a>
+<span class="sourceLineNo">273</span><a name="line.273"></a>
+<span class="sourceLineNo">274</span>  @Target({ ElementType.METHOD })<a name="line.274"></a>
+<span class="sourceLineNo">275</span>  @Retention(RetentionPolicy.RUNTIME)<a name="line.275"></a>
+<span class="sourceLineNo">276</span>  @javax.ws.rs.HttpMethod("PATCH")<a name="line.276"></a>
+<span class="sourceLineNo">277</span>  private @interface PATCH {<a name="line.277"></a>
+<span class="sourceLineNo">278</span><a name="line.278"></a>
+<span class="sourceLineNo">279</span>  }<a name="line.279"></a>
+<span class="sourceLineNo">280</span>  <a name="line.280"></a>
+<span class="sourceLineNo">281</span>}<a name="line.281"></a>
 
 
 
