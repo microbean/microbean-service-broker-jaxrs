@@ -4,7 +4,7 @@
 
   <groupId>org.microbean</groupId>
   <artifactId>microbean-service-broker-jaxrs</artifactId>
-  <version>2.13.0-alpha2-SNAPSHOT</version>
+  <version>2.13.0-alpha3-SNAPSHOT</version>
 
   <parent>
     <groupId>org.microbean</groupId>
@@ -51,7 +51,7 @@
       <dependency>
         <groupId>org.microbean</groupId>
         <artifactId>microbean-service-broker-api</artifactId>
-        <version>2.13.0-alpha2</version>
+        <version>2.13.0-alpha3</version>
         <type>jar</type>
       </dependency>
 

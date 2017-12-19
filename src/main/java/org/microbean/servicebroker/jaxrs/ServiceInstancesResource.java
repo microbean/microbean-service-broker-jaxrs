@@ -85,11 +85,11 @@ public class ServiceInstancesResource {
     if (logger.isLoggable(Level.FINER)) {
       logger.entering(cn, mn, new Object[] { instanceId, serviceId, planId, operationId });
     }
-    Objects.requireNonNull(instanceId);
+    Objects.requireNonNull(instanceId, () -> "instanceId must not be null");
 
     // The specification implies but does not state that operation is required.
     // https://github.com/openservicebrokerapi/servicebroker/blob/v2.13/spec.md#parameters
-    if (operationId == null) {
+    if (operationId == null && !Boolean.getBoolean("org.microbean.servicebroker.api.lenient")) {
       throw new BadRequestException("The operation query parameter was not specified");
     }
     
@@ -132,8 +132,8 @@ public class ServiceInstancesResource {
     if (logger.isLoggable(Level.FINER)) {
       logger.entering(cn, mn, new Object[] { instanceId, command });
     }
-    Objects.requireNonNull(instanceId);
-    Objects.requireNonNull(command);
+    Objects.requireNonNull(instanceId, () -> "instanceId must not be null");
+    Objects.requireNonNull(command, () -> "command must not be null");
 
     command.setAcceptsIncomplete(acceptsIncomplete);
     
@@ -186,8 +186,8 @@ public class ServiceInstancesResource {
     if (logger.isLoggable(Level.FINER)) {
       logger.entering(cn, mn, new Object[] { instanceId, command, Boolean.valueOf(acceptsIncomplete) });
     }
-    Objects.requireNonNull(instanceId);
-    Objects.requireNonNull(command);
+    Objects.requireNonNull(instanceId, () -> "instanceId must not be null");
+    Objects.requireNonNull(command, () -> "command must not be null");
 
     command.setAcceptsIncomplete(acceptsIncomplete);
     
@@ -241,9 +241,12 @@ public class ServiceInstancesResource {
     if (logger.isLoggable(Level.FINER)) {
       logger.entering(cn, mn, new Object[] { instanceId, serviceId, planId, acceptsIncomplete });
     }
-    Objects.requireNonNull(instanceId);
-    Objects.requireNonNull(serviceId);
-    Objects.requireNonNull(planId);
+    Objects.requireNonNull(instanceId, () -> "instanceId must not be null");
+
+    if (!Boolean.getBoolean("org.microbean.servicebroker.api.lenient")) {
+      Objects.requireNonNull(serviceId, () -> "serviceId must not be null");
+      Objects.requireNonNull(planId, () -> "planId must not be null");
+    }
 
     final Response returnValue;
     if (!acceptsIncomplete && this.serviceBroker.isAsynchronousOnly()) {

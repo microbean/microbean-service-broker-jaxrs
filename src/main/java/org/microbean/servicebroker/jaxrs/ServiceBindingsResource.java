@@ -77,9 +77,9 @@ public class ServiceBindingsResource {
       logger.entering(cn, mn, new Object[] { instanceId, bindingId, command });
     }
 
-    Objects.requireNonNull(instanceId);
-    Objects.requireNonNull(bindingId);
-    Objects.requireNonNull(command);
+    Objects.requireNonNull(instanceId, () -> "instanceId must not be null");
+    Objects.requireNonNull(bindingId, () -> "bindingId must not be null");
+    Objects.requireNonNull(command, () -> "command must not be null");
     
     if (command.getInstanceId() == null) {
       command.setInstanceId(instanceId);
@@ -124,10 +124,13 @@ public class ServiceBindingsResource {
       logger.entering(cn, mn, new Object[] { instanceId, bindingId, serviceId, planId });
     }
 
-    Objects.requireNonNull(instanceId);
-    Objects.requireNonNull(bindingId);
-    Objects.requireNonNull(serviceId);
-    Objects.requireNonNull(planId);
+    Objects.requireNonNull(instanceId, () -> "instanceId must not be null");
+    Objects.requireNonNull(bindingId, () -> "bindingId must not be null");
+
+    if (!Boolean.getBoolean("org.microbean.servicebroker.api.lenient")) {
+      Objects.requireNonNull(serviceId, () -> "serviceId must not be null");
+      Objects.requireNonNull(planId, () -> "planId must not be null");
+    }
 
     final DeleteBindingCommand command = new DeleteBindingCommand(instanceId, bindingId, serviceId, planId);
 
